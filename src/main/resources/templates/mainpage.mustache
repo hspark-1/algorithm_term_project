@@ -13,36 +13,20 @@
 	<form class="container" action="/create" method="post">
 
 		<div class="mb-3">
-			<label for="travel_day">여행일수 (1~10)</label>&nbsp;&nbsp;
+			<label for="travel_day">여행일수 (1~10)</label>&nbsp;&nbsp;<br>
 			<input type="number" id="travel_day" name="travel_day" min="1" max="10">
 		</div>
 		<div class="mb-3">
-			<label class="form-label">도착지점</label>
-			<input type="text" class="form-control" name="arrival_point">
-		</div>
-		<div class="mb-3">
-			<label for="arrival_time" class="form-label">도착시간 (10:00~21:00)</label>
+			<label for="arrival_time" class="form-label">도착시간 (오전10:00~오후09:00)</label>
 			<input type="time" class="form-control" id="arrival_time" name="arrival_time" min="10:00" max="21:00" required>
 		</div>
 		<div class="mb-3">
-			<label for="departure_time" class="form-label">출발시간 (10:00~21:00)</label>
+			<label for="departure_time" class="form-label">출발시간 (오전10:00~오후09:00)</label>
 			<input type="time" class="form-control" id="departure_time" name="departure_time" min="10:00" max="21:00" required>
 		</div>
 		<div class="mb-3">
-			<label for="return_time" class="form-label">복귀시간 (10:00~21:00)</label>
+			<label for="return_time" class="form-label">복귀시간 (오전10:00~오후09:00)</label>
 			<input type="time" class="form-control" id="return_time" name="return_time" min="10:00" max="21:00" required>
-		</div>
-		<div class="mb-3">
-			<label class="form-label">점심</label>
-			<textarea class="form-control" rows="3" name="lunch"></textarea>
-		</div>
-		<div class="mb-3">
-			<label class="form-label">저녁</label>
-			<textarea class="form-control" rows="3" name="dinner"></textarea>
-		</div>
-		<div class="mb-3">
-			<label class="form-label">관광지</label>
-			<textarea class="form-control" rows="3" name="tour_place"></textarea>
 		</div>
 		<button type="submit" class="btn btn-primary">Submit</button>
 	</form>

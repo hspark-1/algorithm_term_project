@@ -59,7 +59,7 @@
 </style>
 </head>
 <body>
-    <br><h2>점심 먹을 곳 정하기</h2><br>
+    <br><h2>저녁 먹을 곳 정하기</h2><br>
 <div class="map_wrap">
     <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
 
@@ -80,7 +80,7 @@
 <table class="table">
     <thead>
     <tr>
-      <th scope="col">현재 추가한 나의 점심 리스트</th>
+      <th scope="col">현재 추가한 나의 저녁 리스트</th>
     </tr>
     </thead>
     <tbody>
@@ -91,7 +91,7 @@
         {{/positionDtos}}
     </tbody>
 </table>
-<button type="button" onclick="location.href='/mainpage' ">저녁고르기</button>
+<button type="button" onclick="location.href='/mainpage' ">관광지고르기</button>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d40322add63529ee31b15f8ccce5d737&libraries=services"></script>
 <script>
@@ -311,7 +311,7 @@ function showCordinate(x, y, place_name) {
 	};
 	console.log(position);
 
-	const url = "/position/create"
+	const url = "/position/create/dinner"
 	fetch(url, {
 		method: "post",
 		body: JSON.stringify(position),

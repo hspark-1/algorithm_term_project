@@ -5,6 +5,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import com.example.scheduler_project.dto.DinnerDto;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,25 +14,31 @@ import lombok.ToString;
 
 @Entity
 @AllArgsConstructor
-@ToString
 @NoArgsConstructor
+@ToString
 @Getter
-public class Scheduler {
+public class Dinner {
 	
 	@Id
 	@GeneratedValue
 	private Long id;
 
 	@Column
-	private int travel_day;
+	private String x_position;
 
 	@Column
-	private String arrival_time;
+	private String y_position;
 
-	@Column
-	private String departure_time;
+	public static Dinner createPosition(DinnerDto dto) {
 
-	@Column
-	private String return_time;
+		if(dto.getId()!=null)
+			throw new IllegalArgumentException("위치 생성 실패! id가 없음!");
+
+		return new Dinner(
+			dto.getId(),
+			dto.getX_position(),
+			dto.getY_position()
+		);
+	}
 
 }
