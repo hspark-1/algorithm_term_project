@@ -29,6 +29,9 @@ public class Lunch {
 	@Column
 	private String y_position;
 
+	@Column
+	private String name;
+
 	public static Lunch createPosition(LunchDto dto) {
 
 		if(dto.getId()!=null)
@@ -37,7 +40,8 @@ public class Lunch {
 		return new Lunch(
 			dto.getId(),
 			dto.getX_position(),
-			dto.getY_position()
+			dto.getY_position(),
+			dto.getName()
 		);
 	}
 

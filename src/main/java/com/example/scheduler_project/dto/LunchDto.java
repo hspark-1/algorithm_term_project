@@ -16,12 +16,14 @@ public class LunchDto {
 	private Long id;
 	private String x_position;
 	private String y_position;
+	private String name;
 
 	public static LunchDto createLunchDto(Lunch lunch) {
 		return new LunchDto(
 			lunch.getId(),
 			lunch.getX_position(),
-			lunch.getY_position()
+			lunch.getY_position(),
+			lunch.getName()
 		);
 	}
 

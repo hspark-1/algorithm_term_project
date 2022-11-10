@@ -86,7 +86,7 @@
     <tbody>
         {{#positionDtos}}
             <tr>
-                <th>{{id}}</th>
+                <th>{{name}}</th>
             </tr>
         {{/positionDtos}}
     </tbody>
@@ -183,9 +183,9 @@ function displayPlaces(places) {
         // 마커와 검색결과 항목에 mouseover 했을때
         // 해당 장소에 인포윈도우에 장소명을 표시합니다
         // mouseout 했을 때는 인포윈도우를 닫습니다
-        (function(marker, title) {
+        (function(marker, title, place) {
             kakao.maps.event.addListener(marker, 'click', function() {
-                displayInfowindow(marker, title);
+                displayInfowindow(marker, title, place);
             });
 
             /*kakao.maps.event.addListener(marker, 'mouseout', function() {
@@ -193,13 +193,13 @@ function displayPlaces(places) {
             });*/
 
             itemEl.onclick =  function () {
-                displayInfowindow(marker, title);
+                displayInfowindow(marker, title, place);
             };
             /*
             itemEl.onmouseout =  function () {
                 infowindow.close();
             };*/
-        })(marker, places[i].place_name);
+        })(marker, places[i].place_name, places[i]);
 
         fragment.appendChild(itemEl);
     }
@@ -303,11 +303,12 @@ var overlay = new kakao.maps.CustomOverlay({
     map: map 
 });
 
-function showCordinate(x, y, place_name) {
-    alert("위도 : " + x + "\n경도 : " + y);
+function showCordinate(x, y, z) {
+    alert("위도 : " + x + "\n경도 : " + y + "\n이름 : " + z);
 	const position = {
 		x_position: x,
-		y_position: y
+		y_position: y,
+        name: z
 	};
 	console.log(position);
 
@@ -325,9 +326,10 @@ function showCordinate(x, y, place_name) {
 	});
 }
 
-function displayInfowindow(marker, title) {
+function displayInfowindow(marker, title, place) {
     var x = marker.getPosition().getLng();
     var y = marker.getPosition().getLat();
+    var z = place.place_name;
     var content = '<div class="wrap">' + 
             '    <div class="info">' + 
             '        <div class="title">' + 
@@ -342,7 +344,7 @@ function displayInfowindow(marker, title) {
             '                <div class="ellipsis">제주특별자치도 제주시 첨단로 242</div>' + 
             '                <div class="jibun ellipsis">(우) 63309 (지번) 영평동 2181</div>' + 
             '                <div><a href="https://www.kakaocorp.com/main" target="_blank" class="link">홈페이지</a></div>' + 
-            '                <div onclick="showCordinate(' + x + ', ' + y + ');">확인</div>' +
+            '                <div onclick="showCordinate(' + x + ', ' + y + ',\'' + z + '\');">확인</div>' +
             '            </div>' + 
             '        </div>' + 
             '    </div>' +    
