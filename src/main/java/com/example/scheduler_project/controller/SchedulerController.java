@@ -8,15 +8,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.example.scheduler_project.dto.ArrivalDto;
 import com.example.scheduler_project.dto.DinnerDto;
 import com.example.scheduler_project.dto.LunchDto;
-import com.example.scheduler_project.dto.PositionDto;
 import com.example.scheduler_project.dto.SchedulerForm;
+import com.example.scheduler_project.dto.TouristDto;
 import com.example.scheduler_project.entity.Scheduler;
 import com.example.scheduler_project.repository.SchedulerRepository;
+import com.example.scheduler_project.service.ArrivalService;
 import com.example.scheduler_project.service.DinnerService;
 import com.example.scheduler_project.service.LunchService;
-import com.example.scheduler_project.service.PositionService;
+import com.example.scheduler_project.service.TouristService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,11 +29,13 @@ public class SchedulerController {
 	@Autowired
 	private SchedulerRepository schedulerRepository;
 	@Autowired
-	private PositionService positionService;
+	private ArrivalService arrivalService;
 	@Autowired
 	private LunchService lunchService;
 	@Autowired
 	private DinnerService dinnerService;
+	@Autowired
+	private TouristService touristService;
 
 	@GetMapping("/mainpage")
 	public String index() {
@@ -48,20 +52,23 @@ public class SchedulerController {
 		Scheduler saved = schedulerRepository.save(article);
 		log.info(saved.toString());
 
-		return "redirect:/lunch";
+		return "redirect:/arrival";
 	}
 
-	@GetMapping("/map")
-	public String showMap(Model model) {
-		List<PositionDto> positionDtos = positionService.positions();
-		model.addAttribute("positionDtos", positionDtos);
+	@GetMapping("/arrival")
+	public String selectArrival(Model model) {
+		List<ArrivalDto> arrivalDto = arrivalService.positions();
+		model.addAttribute("positionDto", arrivalDto);
 
-		return "map";
+		return "arrival";
 	}
 
 	@GetMapping("/lunch")
 	public String selectLunch(Model model) {
 		List<LunchDto> lunchDtos = lunchService.positions();
+		List<ArrivalDto> arrivalDto = arrivalService.positions();
+		log.info(arrivalDto.toString());
+		model.addAttribute("positionDto", arrivalDto);
 		model.addAttribute("positionDtos", lunchDtos);
 
 		return "lunch";
@@ -69,10 +76,22 @@ public class SchedulerController {
 
 	@GetMapping("/dinner")
 	public String selectDinner(Model model) {
-		List<DinnerDto> lunchDtos = dinnerService.positions();
-		model.addAttribute("positionDtos", lunchDtos);
+		List<DinnerDto> dinnerDtos = dinnerService.positions();
+		List<ArrivalDto> arrivalDto = arrivalService.positions();
+		model.addAttribute("positionDto", arrivalDto);
+		model.addAttribute("positionDtos", dinnerDtos);
 
 		return "dinner";
+	}
+
+	@GetMapping("/tourist")
+	public String selectTourist(Model model) {
+		List<TouristDto> touristDtos = touristService.positions();
+		List<ArrivalDto> arrivalDto = arrivalService.positions();
+		model.addAttribute("positionDto", arrivalDto);
+		model.addAttribute("positionDtos", touristDtos);
+
+		return "tourist";
 	}
 
 }

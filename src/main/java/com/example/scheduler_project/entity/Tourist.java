@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import com.example.scheduler_project.dto.LunchDto;
+import com.example.scheduler_project.dto.TouristDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,9 +15,9 @@ import lombok.ToString;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Getter
-public class Lunch {
+@ToString
+public class Tourist {
 	
 	@Id
 	@GeneratedValue
@@ -35,12 +35,12 @@ public class Lunch {
 	@Column
 	private int time;
 
-	public static Lunch createPosition(LunchDto dto) {
+	public static Tourist createPosition(TouristDto dto) {
 
 		if(dto.getId()!=null)
 			throw new IllegalArgumentException("위치 생성 실패! id가 없음!");
 
-		return new Lunch(
+		return new Tourist(
 			dto.getId(),
 			dto.getX_position(),
 			dto.getY_position(),
@@ -49,7 +49,7 @@ public class Lunch {
 		);
 	}
 
-	public void patch(LunchDto dto) {
+	public void patch(TouristDto dto) {
 		// 예외 발생
 		if (this.id != dto.getId())
 			throw new IllegalArgumentException("댓글 수정 실패! 잘못된 id가 입력되었습니다.");

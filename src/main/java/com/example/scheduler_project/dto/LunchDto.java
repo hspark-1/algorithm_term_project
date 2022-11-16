@@ -17,13 +17,18 @@ public class LunchDto {
 	private String x_position;
 	private String y_position;
 	private String name;
+	private int time;
 
+	public Lunch toEntity() {
+		return new Lunch(id, x_position, y_position, name, time);
+	}
 	public static LunchDto createLunchDto(Lunch lunch) {
 		return new LunchDto(
 			lunch.getId(),
 			lunch.getX_position(),
 			lunch.getY_position(),
-			lunch.getName()
+			lunch.getName(),
+			lunch.getTime()
 		);
 	}
 

@@ -59,7 +59,7 @@
 </style>
 </head>
 <body>
-    <br><h2>&nbsp;점심 먹을 곳 정하기</h2><br>
+    <br><h2>&nbsp;가고싶은 관광지 정하기</h2><br>
 <div class="map_wrap">
     <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
 
@@ -81,7 +81,7 @@
 	<table class="table">
 		<thead>
 			<tr>
-			<th scope="col">&nbsp;현재 추가한 나의 점심 리스트</th>
+			<th scope="col">&nbsp;현재 추가한 나의 관광지 리스트</th>
 			</tr>
 		</thead>
 	</table>
@@ -194,7 +194,7 @@
                         console.log(comment);
 
                         // 수정 REST API 호출 - fetch()
-                        const url = "/lunch/update/" + comment.id;
+                        const url = "/tourist/update/" + comment.id;
                         fetch(url, {
                             method: "PATCH",
                             body: JSON.stringify(comment),
@@ -230,7 +230,7 @@
                             console.log(`삭제 버튼 클릭: ${commentId}번 댓글`); // == "삭제 버튼 클릭: " + commentId + "번 댓글"
 
                             // 삭제 API 호출 및 처리
-                            const url = `/api/lunch/${commentId}`; // 백틱 숫자 물결 키
+                            const url = `/api/tourist/${commentId}`; // 백틱 숫자 물결 키
                             fetch(url, {
                                 method: "DELETE"
                             }).then(response => {
@@ -254,7 +254,7 @@
     </div>
 </table>
 
-&nbsp;&nbsp;<button type="button" class="btn btn-primary" onclick="location.href='/dinner' ">저녁고르기</button>
+&nbsp;&nbsp;<button type="button" class="btn btn-primary" onclick="location.href='/mainpage' ">여행 계획 끝내기</button>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d40322add63529ee31b15f8ccce5d737&libraries=services"></script>
 <script>
@@ -474,7 +474,7 @@ function showCordinate(x, y, z) {
 	};
 	console.log(position);
 
-	const url = "/position/create/lunch"
+	const url = "/position/create/tourist"
 	fetch(url, {
 		method: "post",
 		body: JSON.stringify(position),

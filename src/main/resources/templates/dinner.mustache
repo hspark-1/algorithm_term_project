@@ -59,7 +59,7 @@
 </style>
 </head>
 <body>
-    <br><h2>저녁 먹을 곳 정하기</h2><br>
+    <br><h2>&nbsp;저녁 먹을 곳 정하기</h2><br>
 <div class="map_wrap">
     <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
 
@@ -67,7 +67,7 @@
         <div class="option">
             <div>
                 <form onsubmit="searchPlaces(); return false;">
-                    키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15"> 
+                    키워드 : <input type="text" value="{{#positionDto}}{{name}}{{/positionDto}}" id="keyword" size="15"> 
                     <button type="submit">검색하기</button> 
                 </form>
             </div>
@@ -77,21 +77,184 @@
         <div id="pagination"></div>
     </div>
 </div>
+<div>
+	<table class="table">
+		<thead>
+			<tr>
+			<th scope="col">&nbsp;현재 추가한 나의 저녁 리스트</th>
+			</tr>
+		</thead>
+	</table>
+</div>
 <table class="table">
-    <thead>
-    <tr>
-      <th scope="col">현재 추가한 나의 저녁 리스트</th>
-    </tr>
-    </thead>
-    <tbody>
-        {{#positionDtos}}
-            <tr>
-                <th>{{id}}</th>
-            </tr>
-        {{/positionDtos}}
-    </tbody>
+    <div>
+        <tbody>
+            <div id="comments-list">
+                {{#positionDtos}}
+                    <div class="card m-2" id="comments-{{id}}">
+                        <div class="card-header">
+                            {{name}}
+                            <!-- Button trigger modal -->
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#comment-edit-modal"
+                                    data-bs-id="{{id}}"
+                                    data-bs-x_position="{{x_position}}"
+                                    data-bs-y_position="{{y_position}}"
+                                    data-bs-name="{{name}}"
+                                    data-bs-time="{{time}}">예상 소요시간 입력</button>
+                            <!-- 댓글 삭제 버튼 -->
+                            <button type="button" class="btn btn-sm btn-outline-danger comment-delete-btn" data-comment-id="{{id}}">삭제</button>
+                        </div>
+                    </div>
+                {{/positionDtos}}
+            </div>
+
+            
+            <!-- Modal -->
+            <div class="modal fade" id="comment-edit-modal" tabindex="-1">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">예상 소요시간 입력</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- 댓글 수정 폼 -->
+                        <form>
+                            <!-- 닉네임 입력 -->
+                            <div class="mb-3 m-2">
+                                <input type="text" class="form-control form-control-sm" id="edit-comment-time">
+                            </div>
+                
+                            <!-- 히든 인풋 -->
+                                <input type="hidden" id="edit-comment-id">
+                                <input type="hidden" id="edit-comment-x_position">
+                                <input type="hidden" id="edit-comment-y_position">
+                                <input type="hidden" id="edit-comment-name">
+                
+                            <!-- 전송 버튼 -->
+                            <div class="m-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="comment-update-btn">입력 완료</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+
+            <!-- 모달 이벤트 처리 -->
+
+            <script>
+                {
+                    // 모달 요소 선택
+                    const commentEditModal = document.querySelector("#comment-edit-modal");
+                    console.log("수정 버튼 클릭 전");
+                    console.log(commentEditModal);
+
+                    // 모달 이벤트 감지
+                    commentEditModal.addEventListener("show.bs.modal", function(event) {
+                        console.log("수정 버튼 클릭");
+                        // 트리거 버튼 선택
+                        const triggerBtn = event.relatedTarget;
+
+                        // 데이터 가져오기
+                        const id = triggerBtn.getAttribute("data-bs-id");
+                        const x_position = triggerBtn.getAttribute("data-bs-x_position");
+                        const y_position = triggerBtn.getAttribute("data-bs-y_position");
+                        const name = triggerBtn.getAttribute("data-bs-name");
+                        const time = triggerBtn.getAttribute("data-bs-time");
+
+                        // 데이터를 반영
+                        document.querySelector("#edit-comment-id").value = id;
+                        document.querySelector("#edit-comment-x_position").value = x_position;
+                        document.querySelector("#edit-comment-y_position").value = y_position;
+                        document.querySelector("#edit-comment-name").value = name;
+                        document.querySelector("#edit-comment-time").value = time;
+                    });
+                }
+
+                {
+                    // 수정 완료 버튼
+                    const commentUpdateBtn = document.querySelector("#comment-update-btn");
+
+                    // 클릭 이벤트 감지 및 처리
+                    commentUpdateBtn.addEventListener("click", function() {
+                        // 수정 댓글 객체 생성
+                        const comment = {
+                            id: document.querySelector("#edit-comment-id").value,
+                            x_position: document.querySelector("#edit-comment-x_position").value,
+                            y_position: document.querySelector("#edit-comment-y_position").value,
+                            name: document.querySelector("#edit-comment-name").value,
+                            time: document.querySelector("#edit-comment-time").value
+                        };
+
+                        console.log(comment);
+
+                        // 수정 REST API 호출 - fetch()
+                        const url = "/dinner/update/" + comment.id;
+                        fetch(url, {
+                            method: "PATCH",
+                            body: JSON.stringify(comment),
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        }).then(response => {
+
+                            // 현재 페이지를 새로고침
+                            window.location.reload();
+                        });
+
+                    });
+
+                }
+            </script>
+
+            <!-- 댓글 삭제 -->
+            <script>
+                {
+                    // 삭제 버튼 선택
+                    const commentDeleteBtns = document.querySelectorAll(".comment-delete-btn");
+
+                    // 삭제 버튼 이벤트를 처리
+                    commentDeleteBtns.forEach(btn => {
+                        // 각 버튼의 이벤트 처리를 등록
+                        btn.addEventListener("click", function(event) {
+                            // 이벤트 발생 요소를 선택
+                            const commentDeleteBtn = event.srcElement;
+
+                            // 삭제 댓글 id 가져오기
+                            const commentId = commentDeleteBtn.getAttribute("data-comment-id");
+                            console.log(`삭제 버튼 클릭: ${commentId}번 댓글`); // == "삭제 버튼 클릭: " + commentId + "번 댓글"
+
+                            // 삭제 API 호출 및 처리
+                            const url = `/api/dinner/${commentId}`; // 백틱 숫자 물결 키
+                            fetch(url, {
+                                method: "DELETE"
+                            }).then(response => {
+                                // 댓글 삭제 실패 처리
+                                if (!response.ok) {
+                                    alert("댓글 삭제 실패..!");
+                                    return;
+                                }
+
+                                // 삭제 성공 시, 댓글을 화면에서 지움!
+                                const target = document.querySelector(`#comments-${commentId}`);
+                                target.remove();
+                            })
+
+                        });
+                    });
+                }
+            </script>
+
+        </tbody>
+    </div>
 </table>
-<button type="button" onclick="location.href='/mainpage' ">관광지고르기</button>
+
+&nbsp;&nbsp;<button type="button" class="btn btn-primary" onclick="location.href='/tourist' ">관광지고르기</button>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d40322add63529ee31b15f8ccce5d737&libraries=services"></script>
 <script>
@@ -183,9 +346,9 @@ function displayPlaces(places) {
         // 마커와 검색결과 항목에 mouseover 했을때
         // 해당 장소에 인포윈도우에 장소명을 표시합니다
         // mouseout 했을 때는 인포윈도우를 닫습니다
-        (function(marker, title) {
+        (function(marker, title, place) {
             kakao.maps.event.addListener(marker, 'click', function() {
-                displayInfowindow(marker, title);
+                displayInfowindow(marker, title, place);
             });
 
             /*kakao.maps.event.addListener(marker, 'mouseout', function() {
@@ -193,13 +356,13 @@ function displayPlaces(places) {
             });*/
 
             itemEl.onclick =  function () {
-                displayInfowindow(marker, title);
+                displayInfowindow(marker, title, place);
             };
             /*
             itemEl.onmouseout =  function () {
                 infowindow.close();
             };*/
-        })(marker, places[i].place_name);
+        })(marker, places[i].place_name, places[i]);
 
         fragment.appendChild(itemEl);
     }
@@ -303,11 +466,11 @@ var overlay = new kakao.maps.CustomOverlay({
     map: map 
 });
 
-function showCordinate(x, y, place_name) {
-    alert("위도 : " + x + "\n경도 : " + y);
+function showCordinate(x, y, z) {
 	const position = {
 		x_position: x,
-		y_position: y
+		y_position: y,
+        name: z
 	};
 	console.log(position);
 
@@ -319,15 +482,14 @@ function showCordinate(x, y, place_name) {
 			"Content-Type": "application/json"
 		}
 	}).then(response => {
-		const msg = (response.ok) ? "위치 저장 성공." : "위치 저장 실패...!";
-		alert(msg);
 		window.location.reload();
 	});
 }
 
-function displayInfowindow(marker, title) {
+function displayInfowindow(marker, title, place) {
     var x = marker.getPosition().getLng();
     var y = marker.getPosition().getLat();
+    var z = place.place_name;
     var content = '<div class="wrap">' + 
             '    <div class="info">' + 
             '        <div class="title">' + 
@@ -342,7 +504,7 @@ function displayInfowindow(marker, title) {
             '                <div class="ellipsis">제주특별자치도 제주시 첨단로 242</div>' + 
             '                <div class="jibun ellipsis">(우) 63309 (지번) 영평동 2181</div>' + 
             '                <div><a href="https://www.kakaocorp.com/main" target="_blank" class="link">홈페이지</a></div>' + 
-            '                <div onclick="showCordinate(' + x + ', ' + y + ');">확인</div>' +
+            '                <div onclick="showCordinate(' + x + ', ' + y + ',\'' + z + '\');">확인</div>' +
             '            </div>' + 
             '        </div>' + 
             '    </div>' +    
@@ -365,6 +527,9 @@ function removeAllChildNods(el) {
     }
 }
 </script>
+
+<!-- Optional JavaScript; choose one of the two! -->
+<Script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>
 

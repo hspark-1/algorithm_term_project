@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import com.example.scheduler_project.dto.PositionDto;
+import com.example.scheduler_project.dto.ArrivalDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,9 +15,9 @@ import lombok.ToString;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Getter
-public class Position {
+@ToString
+public class Arrival {
 	
 	@Id
 	@GeneratedValue
@@ -28,16 +28,20 @@ public class Position {
 
 	@Column
 	private String y_position;
+	
+	@Column
+	private String name;
 
-	public static Position createPosition(PositionDto dto) {
+	public static Arrival createPosition(ArrivalDto dto) {
 
 		if(dto.getId()!=null)
 			throw new IllegalArgumentException("위치 생성 실패! id가 없음!");
 
-		return new Position(
+		return new Arrival(
 			dto.getId(),
 			dto.getX_position(),
-			dto.getY_position()
+			dto.getY_position(),
+			dto.getName()
 		);
 	}
 

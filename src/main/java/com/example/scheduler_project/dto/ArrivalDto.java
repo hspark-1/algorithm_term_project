@@ -1,6 +1,6 @@
 package com.example.scheduler_project.dto;
 
-import com.example.scheduler_project.entity.Position;
+import com.example.scheduler_project.entity.Arrival;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,18 +11,20 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @ToString
-public class PositionDto {
+public class ArrivalDto {
 	
 	private Long id;
 	private String x_position;
 	private String y_position;
+	private String name;
 
-	public static PositionDto createPositionDto(Position position) {
-		return new PositionDto(
-			position.getId(),
-			position.getX_position(),
-			position.getY_position()
+	public static ArrivalDto createArrivalDto(Arrival arrival) {
+		return new ArrivalDto(
+			arrival.getId(),
+			arrival.getX_position(),
+			arrival.getY_position(),
+			arrival.getName()
 		);
 	}
-
+	
 }
