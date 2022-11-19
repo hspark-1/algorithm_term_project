@@ -18,6 +18,10 @@ public class LunchService {
 	@Autowired
 	private LunchRepository lunchRepository;
 
+	public List<Lunch> findall() {
+		return lunchRepository.findAll();
+	}
+
 	public List<LunchDto> positions() {
 		return lunchRepository.findAll()
 				.stream()

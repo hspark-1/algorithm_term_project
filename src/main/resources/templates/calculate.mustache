@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+<body>
+	<form>
+		{{#lunchDtos}}
+		<div>
+			{{name}}<br>
+			<input type="hidden" class="form-control form-control-sm" value="{{x_position}}" id="edit-comment-time-x">
+			<input type="hidden" class="form-control form-control-sm" value="{{y_position}}" id="edit-comment-time-y">
+		</div>
+		{{/lunchDtos}}
+		{{#dinnerDtos}}
+		<div>
+			{{name}}<br>
+			<input type="hidden" class="form-control form-control-sm" value="{{x_position}}" id="edit-comment-time-x">
+			<input type="hidden" class="form-control form-control-sm" value="{{y_position}}" id="edit-comment-time-y">
+		</div>
+		{{/dinnerDtos}}
+		{{#touristDtos}}
+		<div>
+			{{name}}<br>
+			<input type="hidden" class="form-control form-control-sm" value="{{x_position}}" id="edit-comment-time-x">
+			<input type="hidden" class="form-control form-control-sm" value="{{y_position}}" id="edit-comment-time-y">
+		</div>
+		{{/touristDtos}}
+		<button type="button" id="comment-update-btn">button</button>
+	</form>
+	
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d40322add63529ee31b15f8ccce5d737&libraries=services"></script>
+<script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx62382c687c244d9b8640a25fa3e0d46e"></script>
+
+	<script>
+		// function func() {
+		// 	var a = document.querySelectorAll("#edit-comment-time");
+		// 	var b = [];
+		// 	for(var i = 0; i <= a.length-1; i++){
+		// 		b.push(a[i].value);
+		// 	}
+		// 	console.log(b);
+		// }
+
+		const commentUpdateBtn = document.querySelector("#comment-update-btn");
+		console.log(commentUpdateBtn);
+		commentUpdateBtn.addEventListener("click", function() {
+				var a = document.querySelectorAll("#edit-comment-time-x");
+				var b = document.querySelectorAll("#edit-comment-time-y");
+				var x = [];
+				var y = [];
+				for(var i = 0; i <= a.length-1; i++){
+					x.push(a[i].value);
+					y.push(b[i].value);
+				}
+				console.log(x);
+				console.log(x[1]);
+				var comment = [];
+				for(var i=0; i<=a.length-1; i++) {
+					comment[i] = {
+						x_position: x[i],
+						y_position: y[i]
+					}
+				}
+				for(var i = 0; i <= a.length-1; i++) {
+					console.log(comment[i]);
+				}
+				getTime(comment[0].x_position, comment[0].y_position, comment[1].x_position, comment[1].y_position)
+		})
+	</script>
+
+	<script>
+		function showCordinate(x, y, z) {
+			alert("위도 : " + x + "\n경도 : " + y + "\n주소 : " + z);
+			getTime(127.12994455070641, 37.45042146197268, x, y);
+		}
+
+		function getTime(startX, startY, endX, endY) {
+			//var startX = 127.12994455070641;
+			//var startY = 37.45042146197268;
+			//var endX = x;
+			//var endY = y;
+
+			//var passList = "127.07389565460413,37.5591696189164_127.13346617572014,37.52127761904626"; middle points in route
+			var prtcl;
+			var headers = {};
+			headers["appKey"]="l7xx62382c687c244d9b8640a25fa3e0d46e";
+			$.ajax({
+					method:"POST", 
+					headers : headers,
+					url:"https://apis.openapi.sk.com/tmap/routes?version=1&format=json",//
+					async:false,
+					data:{ 
+						startX : startX,
+						startY : startY,
+						endX : endX,
+						endY : endY,
+						//passList : passList,
+						reqCoordType : "WGS84GEO",
+						resCoordType : "WGS84GEO",
+						//angle : "172",
+						searchOption : "0",
+						trafficInfo : "Y"
+					},
+					success:function(response){
+					prtcl = response;
+					var resultData = response.features;
+				
+					var tDistance = "총 거리 : "
+						+ (resultData[0].properties.totalDistance / 1000)
+								.toFixed(1) + "km,";
+					var tTime = " 총 시간 : "
+						+ (resultData[0].properties.totalTime / 60)
+								.toFixed(0) + "분,";
+					var tFare = " 총 요금 : "
+						+ resultData[0].properties.totalFare
+						+ "원,";
+					var taxiFare = " 예상 택시 요금 : "
+						+ resultData[0].properties.taxiFare
+						+ "원";
+
+					alert(tTime);
+
+				
+					},
+					error:function(request,status,error){
+					console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+				}
+			});
+		}
+	</script>
+</body>
+</html>
