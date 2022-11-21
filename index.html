@@ -80,6 +80,7 @@
 <script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx11c252530be042c6883a27cad43cdf28"></script>
 <script>
+
 // 마커를 담을 배열입니다
 var markers = [];
 
@@ -288,9 +289,31 @@ var overlay = new kakao.maps.CustomOverlay({
     map: map 
 });
 
+var linePath = [];
+
+var polyline = new kakao.maps.Polyline({
+    //map: map,
+    path: linePath, // 선을 구성하는 좌표배열 입니다
+    strokeWeight: 5, // 선의 두께 입니다
+    strokeColor: '#FF0000', // 선의 색깔입니다
+    strokeOpacity: 0.7, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+    strokeStyle: 'solid' // 선의 스타일입니다
+});
+
+function addToLine(x, y) {
+    linePath.push(new kakao.maps.LatLng(x, y));
+    polyline.setPath(linePath);
+}
+
+function drawLine() {
+    polyline.setMap(map);
+}
+
 function showCordinate(x, y, z) {
     alert("위도 : " + x + "\n경도 : " + y + "\n주소 : " + z);
-    getTime(127.12994455070641, 37.45042146197268, x, y);
+    getTime(127.12994455070641, 37.45042146197268, y, x);
+    addToLine(x, y);
+    drawLine();
 }
 
 function getTime(startX, startY, endX, endY) {
@@ -348,13 +371,13 @@ function getTime(startX, startY, endX, endY) {
 }
 
 function displayInfowindow(marker, title, place) {
-    var x = marker.getPosition().getLng();
-    var y = marker.getPosition().getLat();
-    var z = place.place_name;
+    var x = marker.getPosition().getLat();
+    var y = marker.getPosition().getLng();
+    map.setCenter(marker.getPosition());
 
-    
-
-    
+    var roadAddress = place.road_address_name;
+    var address = place.address_name;
+    var phone = place.phone;
 
 
 
@@ -368,15 +391,18 @@ function displayInfowindow(marker, title, place) {
             '            <div class="close" onclick="closeOverlay();" title="닫기"></div>' + 
             '        </div>' + 
             '        <div class="body">' + 
-            '            <div class="img">' +
-            '                <img src="https://cfile181.uf.daum.net/image/250649365602043421936D" width="73" height="70">' +
-            '           </div>' + 
             '            <div class="desc">' + 
-            '                <div class="ellipsis">제주특별자치도 제주시 첨단로 242</div>' + 
-            '                <div class="jibun ellipsis">(우) 63309 (지번) 영평동 2181</div>' + 
-            '                <div><a href="https://www.kakaocorp.com/main" target="_blank" class="link">홈페이지</a></div>' + 
-            //'                <div id = "showresult" onclick="alert(\'' + z + '\');">확인</div>' +
-            '                <div onclick="showCordinate(' + x + ', ' + y + ', \'' + z +'\');">확인</div>' +
+            '                <div class="ellipsis">' +
+                                roadAddress + 
+            '                   </div>' + 
+            '                <div class="jibun ellipsis">' +
+                                address +
+            '                   </div>' + 
+            '                <div class="phone">' +
+                                phone + 
+            '                   </div>' + 
+            '                <button type="button" onclick="showCordinate(' + x + ', ' + y + ', \'' + title +'\');">확인</div>' +
+            //'                <div onclick="showCordinate(' + x + ', ' + y + ', \'' + title +'\');">확인</div>' +
             '            </div>' + 
             '        </div>' + 
             '    </div>' +    
@@ -398,71 +424,7 @@ function removeAllChildNods(el) {
         el.removeChild (el.lastChild);
     }
 }
+
 </script>
 </body>
 </html>
-
-<!--
-<!DOCTYPE html>
-<html>
-<head>
-</head>
-<body>
-    <input type="text" id="sample5_address" placeholder="주소">
-    <input type="button" onclick="sample5_execDaumPostcode()" value="주소 검색"><br>
-    <div id="map" style="width:300px;height:300px;margin-top:10px"></div>
-    <p id="result"></p>
-    
-    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=49e5ac41893467c9cddc70388423f5d1&libraries=services"></script>
-    <script>
-        var mapContainer = document.getElementById('map'), // 지도를 표시할 div
-            mapOption = {
-                center: new daum.maps.LatLng(37.537187, 127.005476), // 지도의 중심좌표
-                level: 5 // 지도의 확대 레벨
-            };
-    
-        //지도를 미리 생성
-        var map = new daum.maps.Map(mapContainer, mapOption);
-        //주소-좌표 변환 객체를 생성
-        var geocoder = new daum.maps.services.Geocoder();
-        //마커를 미리 생성
-        var marker = new daum.maps.Marker({
-            position: new daum.maps.LatLng(37.537187, 127.005476),
-            map: map
-        });
-    
-    
-        function sample5_execDaumPostcode() {
-            new daum.Postcode({
-                oncomplete: function(data) {
-                    var addr = data.address; // 최종 주소 변수
-                    
-                    // 주소 정보를 해당 필드에 넣는다.
-                    document.getElementById("sample5_address").value = addr;
-                    // 주소로 상세 정보를 검색
-                    geocoder.addressSearch(data.address, function(results, status) {
-                        
-                        // 정상적으로 검색이 완료됐으면
-                        if (status === daum.maps.services.Status.OK) {
-                            var result = results[0]; //첫번째 결과의 값을 활용
-    
-                            // 해당 주소에 대한 좌표를 받아서
-                            var coords = new daum.maps.LatLng(result.y, result.x);
-                            // 지도를 보여준다.
-                            mapContainer.style.display = "block";
-                            map.relayout();
-                            // 지도 중심을 변경한다.
-                            map.setCenter(coords);
-                            // 마커를 결과값으로 받은 위치로 옮긴다.
-                            marker.setPosition(coords)
-                            document.getElementById("result").innerHTML = "adress : " + data.address + "\ncoordinate : "+ "( " + result.x + ", " + result.y + " )";
-                        }
-                    });
-                }
-            }).open();
-        }
-    </script>
-</body>
-</html>
--->
