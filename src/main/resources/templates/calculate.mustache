@@ -11,27 +11,13 @@
 		{{#lunchDtos}}
 		<div>
 			{{name}}<br>
+			<input type="hidden" class="form-control form-control-sm" value="{{id}}" id="edit-comment-id">
 			<input type="hidden" class="form-control form-control-sm" value="{{x_position}}" id="edit-comment-time-x">
 			<input type="hidden" class="form-control form-control-sm" value="{{y_position}}" id="edit-comment-time-y">
 		</div>
 		{{/lunchDtos}}
-		{{#dinnerDtos}}
-		<div>
-			{{name}}<br>
-			<input type="hidden" class="form-control form-control-sm" value="{{x_position}}" id="edit-comment-time-x">
-			<input type="hidden" class="form-control form-control-sm" value="{{y_position}}" id="edit-comment-time-y">
-		</div>
-		{{/dinnerDtos}}
-		{{#touristDtos}}
-		<div>
-			{{name}}<br>
-			<input type="hidden" class="form-control form-control-sm" value="{{x_position}}" id="edit-comment-time-x">
-			<input type="hidden" class="form-control form-control-sm" value="{{y_position}}" id="edit-comment-time-y">
-		</div>
-		{{/touristDtos}}
 		<button type="button" id="comment-update-btn">button</button>
 	</form>
-	
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d40322add63529ee31b15f8ccce5d737&libraries=services"></script>
 <script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx62382c687c244d9b8640a25fa3e0d46e"></script>
@@ -51,35 +37,35 @@
 		commentUpdateBtn.addEventListener("click", function() {
 				var a = document.querySelectorAll("#edit-comment-time-x");
 				var b = document.querySelectorAll("#edit-comment-time-y");
+				var c = document.querySelectorAll("#edit-comment-id");
 				var x = [];
 				var y = [];
+				var z = [];
 				for(var i = 0; i <= a.length-1; i++){
 					x.push(a[i].value);
 					y.push(b[i].value);
+					z.push(c[i].value);
 				}
-				console.log(x);
-				console.log(x[1]);
 				var comment = [];
 				for(var i=0; i<=a.length-1; i++) {
 					comment[i] = {
 						x_position: x[i],
-						y_position: y[i]
+						y_position: y[i],
+						id: z[i]
 					}
 				}
 				for(var i = 0; i <= a.length-1; i++) {
-					console.log(comment[i]);
+					for(var j = 0; j <= a.length-1; j++) {
+						if(i==j) {
+							continue;
+						}
+						console.log(comment[i]);
+						getTime(comment[i].id, comment[i].x_position, comment[i].y_position, comment[j].id, comment[j].x_position, comment[j].y_position);
+					}
 				}
-				getTime(comment[0].x_position, comment[0].y_position, comment[1].x_position, comment[1].y_position)
 		})
-	</script>
 
-	<script>
-		function showCordinate(x, y, z) {
-			alert("위도 : " + x + "\n경도 : " + y + "\n주소 : " + z);
-			getTime(127.12994455070641, 37.45042146197268, x, y);
-		}
-
-		function getTime(startX, startY, endX, endY) {
+		function getTime(id1, startX, startY, id2, endX, endY) {
 			//var startX = 127.12994455070641;
 			//var startY = 37.45042146197268;
 			//var endX = x;
@@ -113,9 +99,7 @@
 					var tDistance = "총 거리 : "
 						+ (resultData[0].properties.totalDistance / 1000)
 								.toFixed(1) + "km,";
-					var tTime = " 총 시간 : "
-						+ (resultData[0].properties.totalTime / 60)
-								.toFixed(0) + "분,";
+					var tTime = (resultData[0].properties.totalTime / 60).toFixed(0);
 					var tFare = " 총 요금 : "
 						+ resultData[0].properties.totalFare
 						+ "원,";
@@ -123,8 +107,24 @@
 						+ resultData[0].properties.taxiFare
 						+ "원";
 
-					alert(tTime);
 
+					const taken = {
+						lunch1: id1,
+						lunch2: id2,
+						time: tTime,
+						visit: 0
+					};
+					console.log(taken);
+					const url = "/taken/create"
+					fetch(url, {
+						method: "post",
+						body: JSON.stringify(taken),
+						headers: {
+							"Content-Type": "application/json"
+						}
+					}).then(response => {
+						window.location.reload();
+					});
 				
 					},
 					error:function(request,status,error){

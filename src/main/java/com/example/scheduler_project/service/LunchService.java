@@ -9,21 +9,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.scheduler_project.dto.LunchDto;
+import com.example.scheduler_project.dto.TakenDto;
 import com.example.scheduler_project.entity.Lunch;
+import com.example.scheduler_project.entity.Taken;
 import com.example.scheduler_project.repository.LunchRepository;
+import com.example.scheduler_project.repository.TakenRepository;
 
 @Service
 public class LunchService {
 
 	@Autowired
 	private LunchRepository lunchRepository;
+	@Autowired
+	private TakenRepository takenRepository;
 
 	public List<Lunch> findall() {
 		return lunchRepository.findAll();
 	}
 
-	public List<LunchDto> positions() {
-		return lunchRepository.findAll()
+	public List<LunchDto> positions(int id) {
+		return lunchRepository.findAllByIndex(id)
 				.stream()
 				.map(lunch -> LunchDto.createLunchDto(lunch))
 				.collect(Collectors.toList());
@@ -37,6 +42,17 @@ public class LunchService {
 		Lunch created = lunchRepository.save(lunch);
 
 		return LunchDto.createLunchDto(created);
+	}
+
+	@Transactional
+	public TakenDto createtaken(TakenDto dto) {
+		Lunch lunch1 = lunchRepository.findById(dto.getLunch1()).orElseThrow(() -> new IllegalArgumentException("댓글 생성 실패! 대상 게시글이 없습니다."));
+		Lunch lunch2 = lunchRepository.findById(dto.getLunch2()).orElseThrow(() -> new IllegalArgumentException("댓글 생성 실패! 대상 게시글이 없습니다."));
+		Taken taken = Taken.createPosition(dto, lunch1, lunch2);
+
+		Taken created = takenRepository.save(taken);
+
+		return TakenDto.createTakenDto(created);
 	}
 	
 	@Transactional

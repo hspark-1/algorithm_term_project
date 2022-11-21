@@ -9,18 +9,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.scheduler_project.dto.ArrivalDto;
-import com.example.scheduler_project.dto.DinnerDto;
 import com.example.scheduler_project.dto.LunchDto;
 import com.example.scheduler_project.dto.SchedulerForm;
-import com.example.scheduler_project.dto.TouristDto;
 import com.example.scheduler_project.entity.Lunch;
 import com.example.scheduler_project.entity.Scheduler;
+import com.example.scheduler_project.entity.Taken;
 import com.example.scheduler_project.repository.LunchRepository;
 import com.example.scheduler_project.repository.SchedulerRepository;
+import com.example.scheduler_project.repository.TakenRepository;
 import com.example.scheduler_project.service.ArrivalService;
-import com.example.scheduler_project.service.DinnerService;
 import com.example.scheduler_project.service.LunchService;
-import com.example.scheduler_project.service.TouristService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,9 +35,7 @@ public class SchedulerController {
 	@Autowired
 	private LunchService lunchService;
 	@Autowired
-	private DinnerService dinnerService;
-	@Autowired
-	private TouristService touristService;
+	private TakenRepository takenRepository;
 
 	@GetMapping("/mainpage")
 	public String index() {
@@ -69,7 +65,7 @@ public class SchedulerController {
 
 	@GetMapping("/lunch")
 	public String selectLunch(Model model) {
-		List<LunchDto> lunchDtos = lunchService.positions();
+		List<LunchDto> lunchDtos = lunchService.positions(1);
 		List<ArrivalDto> arrivalDto = arrivalService.positions();
 		log.info(arrivalDto.toString());
 		model.addAttribute("positionDto", arrivalDto);
@@ -80,7 +76,7 @@ public class SchedulerController {
 
 	@GetMapping("/dinner")
 	public String selectDinner(Model model) {
-		List<DinnerDto> dinnerDtos = dinnerService.positions();
+		List<LunchDto> dinnerDtos = lunchService.positions(2);
 		List<ArrivalDto> arrivalDto = arrivalService.positions();
 		model.addAttribute("positionDto", arrivalDto);
 		model.addAttribute("positionDtos", dinnerDtos);
@@ -90,10 +86,14 @@ public class SchedulerController {
 
 	@GetMapping("/tourist")
 	public String selectTourist(Model model) {
-		List<TouristDto> touristDtos = touristService.positions();
+		List<LunchDto> touristDtos = lunchService.positions(3);
 		List<ArrivalDto> arrivalDto = arrivalService.positions();
 		model.addAttribute("positionDto", arrivalDto);
 		model.addAttribute("positionDtos", touristDtos);
+
+		List<Lunch> lunchEntity = lunchRepository.findAll();
+		model.addAttribute("lunchDtos", lunchEntity);
+		log.info(lunchEntity.toString());
 
 		return "tourist";
 	}
@@ -106,14 +106,12 @@ public class SchedulerController {
 	@GetMapping("/cal")
 	public String Cal(Model model) {
 		List<Lunch> lunchEntity = lunchRepository.findAll();
-		List<DinnerDto> dinnerDtos = dinnerService.positions();
-		List<TouristDto> touristDtos = touristService.positions();
 		model.addAttribute("lunchDtos", lunchEntity);
-		model.addAttribute("dinnerDtos", dinnerDtos);
-		model.addAttribute("touristDtos", touristDtos);
 		log.info(lunchEntity.toString());
-		log.info(dinnerDtos.toString());
-		log.info(touristDtos.toString());
+
+		List<Taken> takens = takenRepository.findAll();
+		model.addAttribute("takensEntity", takens);
+		log.info(takens.toString());
 		
 		return "calculate";
 	}

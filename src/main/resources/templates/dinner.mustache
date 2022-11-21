@@ -103,7 +103,8 @@
                                     data-bs-x_position="{{x_position}}"
                                     data-bs-y_position="{{y_position}}"
                                     data-bs-name="{{name}}"
-                                    data-bs-time="{{time}}">예상 소요시간 입력</button>
+                                    data-bs-time="{{time}}"
+                                    data-bs-index="2">예상 소요시간 입력</button>
                             <!-- 댓글 삭제 버튼 -->
                             <button type="button" class="btn btn-sm btn-outline-danger comment-delete-btn" data-comment-id="{{id}}">삭제</button>
                         </div>
@@ -133,6 +134,7 @@
                                 <input type="hidden" id="edit-comment-x_position">
                                 <input type="hidden" id="edit-comment-y_position">
                                 <input type="hidden" id="edit-comment-name">
+                                <input type="hidden" id="edit-comment-index">
                 
                             <!-- 전송 버튼 -->
                             <div class="m-2">
@@ -166,6 +168,7 @@
                         const y_position = triggerBtn.getAttribute("data-bs-y_position");
                         const name = triggerBtn.getAttribute("data-bs-name");
                         const time = triggerBtn.getAttribute("data-bs-time");
+                        const index = triggerBtn.getAttribute("data-bs-index");
 
                         // 데이터를 반영
                         document.querySelector("#edit-comment-id").value = id;
@@ -173,6 +176,7 @@
                         document.querySelector("#edit-comment-y_position").value = y_position;
                         document.querySelector("#edit-comment-name").value = name;
                         document.querySelector("#edit-comment-time").value = time;
+                        document.querySelector("#edit-comment-index").value = index;
                     });
                 }
 
@@ -188,13 +192,14 @@
                             x_position: document.querySelector("#edit-comment-x_position").value,
                             y_position: document.querySelector("#edit-comment-y_position").value,
                             name: document.querySelector("#edit-comment-name").value,
-                            time: document.querySelector("#edit-comment-time").value
+                            time: document.querySelector("#edit-comment-time").value,
+                            index: document.querySelector("#edit-comment-index").value
                         };
 
                         console.log(comment);
 
                         // 수정 REST API 호출 - fetch()
-                        const url = "/dinner/update/" + comment.id;
+                        const url = "/lunch/update/" + comment.id;
                         fetch(url, {
                             method: "PATCH",
                             body: JSON.stringify(comment),
@@ -230,7 +235,7 @@
                             console.log(`삭제 버튼 클릭: ${commentId}번 댓글`); // == "삭제 버튼 클릭: " + commentId + "번 댓글"
 
                             // 삭제 API 호출 및 처리
-                            const url = `/api/dinner/${commentId}`; // 백틱 숫자 물결 키
+                            const url = `/api/lunch/${commentId}`; // 백틱 숫자 물결 키
                             fetch(url, {
                                 method: "DELETE"
                             }).then(response => {
@@ -470,11 +475,12 @@ function showCordinate(x, y, z) {
 	const position = {
 		x_position: x,
 		y_position: y,
-        name: z
+        name: z,
+        index: 2
 	};
 	console.log(position);
 
-	const url = "/position/create/dinner"
+	const url = "/position/create/lunch"
 	fetch(url, {
 		method: "post",
 		body: JSON.stringify(position),

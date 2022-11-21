@@ -34,6 +34,12 @@ public class Lunch {
 
 	@Column
 	private int time;
+	
+	@Column
+	private int index;
+
+	@Column
+	private int visit;
 
 	public static Lunch createPosition(LunchDto dto) {
 
@@ -45,7 +51,9 @@ public class Lunch {
 			dto.getX_position(),
 			dto.getY_position(),
 			dto.getName(),
-			dto.getTime()
+			dto.getTime(),
+			dto.getIndex(),
+			dto.getVisit()
 		);
 	}
 
@@ -69,6 +77,12 @@ public class Lunch {
 
 		if (dto.getTime() != 0)
 			this.time = dto.getTime();
+
+		if (dto.getIndex() != 0)
+			this.index = dto.getIndex();
+
+		if (dto.getVisit() != 1)
+			this.visit = dto.getVisit();
 	}
 
 }

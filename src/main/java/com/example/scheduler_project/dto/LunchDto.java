@@ -18,17 +18,22 @@ public class LunchDto {
 	private String y_position;
 	private String name;
 	private int time;
+	private int index;
+	private int visit;
 
 	public Lunch toEntity() {
-		return new Lunch(id, x_position, y_position, name, time);
+		return new Lunch(id, x_position, y_position, name, time, index, visit);
 	}
+
 	public static LunchDto createLunchDto(Lunch lunch) {
 		return new LunchDto(
 			lunch.getId(),
 			lunch.getX_position(),
 			lunch.getY_position(),
 			lunch.getName(),
-			lunch.getTime()
+			lunch.getTime(),
+			lunch.getIndex(),
+			lunch.getVisit()
 		);
 	}
 
