@@ -158,8 +158,9 @@ public class travel{
     		day_meal[days]++;
     		// DB에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
         }
-        else if (TimeCheck(current_time) == 3 || TimeCheck(ExpectTime) == 3){ // 숙소로 돌아갈 시간이 되었다면
+        else if (TimeCheck(current_time) == 3 || TimeCheck(ComputeTime(current_time, PlayTime, 0)) == 3){ // 숙소로 돌아갈 시간이 되었다면
             days++;	// 여행 날짜를 하나 증가시킴
+            TimetoNextPlace = 0;
             current_time = "09:00"; // 시작시간으로 초기화
         }
         else {
@@ -169,8 +170,10 @@ public class travel{
     	place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
     	current_place = NextPlace;
     	
-    	ComputeNextPlace(current_place, ComputeTime(current_time, TimetoNextPlace, PlayTime));
-    	
+    	if (current_time.equals("09:00"))
+    		ComputeNextPlace(current_place, ComputeTime(current_time, 0, 0));
+    	else
+    		ComputeNextPlace(current_place, ComputeTime(current_time, TimetoNextPlace, PlayTime));
     	return;
     }
 
