@@ -46,5 +46,13 @@ public class ArrivalService {
 		// 삭제 댓글을 DTO로 반환
 		return ArrivalDto.createArrivalDto(target);
 	}
+
+	public ArrivalDto find() {
+		List<Arrival> arrivalDto = arrivalRepository.findAll();
+		Arrival arrival = arrivalDto.get(0);
+		ArrivalDto arrivalDto2 = ArrivalDto.createArrivalDto(arrival);
+
+		return arrivalDto2;
+	}
 	
 }

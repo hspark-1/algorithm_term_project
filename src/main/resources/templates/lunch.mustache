@@ -59,38 +59,43 @@
 </style>
 </head>
 <body>
-    <br><h2>&nbsp;점심 먹을 곳 정하기</h2><br>
-<div class="map_wrap">
-    <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
-
-    <div id="menu_wrap" class="bg_white">
-        <div class="option">
-            <div>
-                <form onsubmit="searchPlaces(); return false;">
-                    키워드 : <input type="text" value="{{#positionDto}}{{name}}{{/positionDto}}" id="keyword" size="15"> 
-                    <button type="submit">검색하기</button> 
-                </form>
-            </div>
+    <nav class="navbar bg-light">
+        <div class="container-fluid">
+            <span class="navbar-text">
+                <b><h2>&nbsp;점심 먹을 곳 정하기</h2></b>
+            </span>
         </div>
-        <hr>
-        <ul id="placesList"></ul>
-        <div id="pagination"></div>
+    </nav>
+    <div class="map_wrap">
+        <div id="map" style="width:100%;height:100%;position:relative;overflow:hidden;"></div>
+        <div id="menu_wrap" class="bg_white">
+            <div class="option">
+                <div>
+                    <form onsubmit="searchPlaces(); return false;">
+                        키워드 : <input type="text" value="{{#positionDto}}{{name}}{{/positionDto}}" id="keyword" size="15"> 
+                        <button type="submit">검색하기</button> 
+                    </form>
+                </div>
+            </div>
+            <hr>
+            <ul id="placesList"></ul>
+            <div id="pagination"></div>
+        </div>
     </div>
-</div>
-<div>
-	<table class="table">
-		<thead>
-			<tr>
-			<th scope="col">&nbsp;현재 추가한 나의 점심 리스트</th>
-			</tr>
-		</thead>
-	</table>
-</div>
-<table class="table">
     <div>
-        <tbody>
-            <div id="comments-list">
-                {{#positionDtos}}
+        <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">&nbsp;현재 추가한 나의 점심 리스트</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <table class="table">
+        <div>
+            <tbody>
+                <div id="comments-list">
+                    {{#positionDtos}}
                     <div class="card m-2" id="comments-{{id}}">
                         <div class="card-header">
                             {{name}}
@@ -109,157 +114,143 @@
                             <button type="button" class="btn btn-sm btn-outline-danger comment-delete-btn" data-comment-id="{{id}}">삭제</button>
                         </div>
                     </div>
-                {{/positionDtos}}
-            </div>
-
-            
-            <!-- Modal -->
-            <div class="modal fade" id="comment-edit-modal" tabindex="-1">
-                <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">예상 소요시간 입력</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- 댓글 수정 폼 -->
-                        <form>
-                            <!-- 닉네임 입력 -->
-                            <div class="mb-3 m-2">
-                                <input type="text" class="form-control form-control-sm" id="edit-comment-time">
+                    {{/positionDtos}}
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="comment-edit-modal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">예상 소요시간 입력</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                
-                            <!-- 히든 인풋 -->
-                                <input type="hidden" id="edit-comment-id">
-                                <input type="hidden" id="edit-comment-x_position">
-                                <input type="hidden" id="edit-comment-y_position">
-                                <input type="hidden" id="edit-comment-name">
-                                <input type="hidden" id="edit-comment-index">
-                
-                            <!-- 전송 버튼 -->
-                            <div class="m-2">
-                                <button type="button" class="btn btn-outline-primary btn-sm" id="comment-update-btn">입력 완료</button>
+                            <div class="modal-body">
+                                <!-- 댓글 수정 폼 -->
+                                <form>
+                                    <!-- 닉네임 입력 -->
+                                    <div class="mb-3 m-2"><input type="text" class="form-control form-control-sm" id="edit-comment-time"></div>
+                                    <!-- 히든 인풋 -->
+                                    <input type="hidden" id="edit-comment-id">
+                                    <input type="hidden" id="edit-comment-x_position">
+                                    <input type="hidden" id="edit-comment-y_position">
+                                    <input type="hidden" id="edit-comment-name">
+                                    <input type="hidden" id="edit-comment-index">
+                                    <!-- 전송 버튼 -->
+                                    <div class="m-2">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="comment-update-btn">입력 완료</button>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
-                </div>
-            </div>
+                <!-- 모달 이벤트 처리 -->
+                <script>
+                    {
+                        // 모달 요소 선택
+                        const commentEditModal = document.querySelector("#comment-edit-modal");
+                        console.log("수정 버튼 클릭 전");
+                        console.log(commentEditModal);
 
+                        // 모달 이벤트 감지
+                        commentEditModal.addEventListener("show.bs.modal", function(event) {
+                            console.log("수정 버튼 클릭");
+                            // 트리거 버튼 선택
+                            const triggerBtn = event.relatedTarget;
 
-            <!-- 모달 이벤트 처리 -->
+                            // 데이터 가져오기
+                            const id = triggerBtn.getAttribute("data-bs-id");
+                            const x_position = triggerBtn.getAttribute("data-bs-x_position");
+                            const y_position = triggerBtn.getAttribute("data-bs-y_position");
+                            const name = triggerBtn.getAttribute("data-bs-name");
+                            const time = triggerBtn.getAttribute("data-bs-time");
+                            const index = triggerBtn.getAttribute("data-bs-index");
 
-            <script>
-                {
-                    // 모달 요소 선택
-                    const commentEditModal = document.querySelector("#comment-edit-modal");
-                    console.log("수정 버튼 클릭 전");
-                    console.log(commentEditModal);
-
-                    // 모달 이벤트 감지
-                    commentEditModal.addEventListener("show.bs.modal", function(event) {
-                        console.log("수정 버튼 클릭");
-                        // 트리거 버튼 선택
-                        const triggerBtn = event.relatedTarget;
-
-                        // 데이터 가져오기
-                        const id = triggerBtn.getAttribute("data-bs-id");
-                        const x_position = triggerBtn.getAttribute("data-bs-x_position");
-                        const y_position = triggerBtn.getAttribute("data-bs-y_position");
-                        const name = triggerBtn.getAttribute("data-bs-name");
-                        const time = triggerBtn.getAttribute("data-bs-time");
-                        const index = triggerBtn.getAttribute("data-bs-index");
-
-                        // 데이터를 반영
-                        document.querySelector("#edit-comment-id").value = id;
-                        document.querySelector("#edit-comment-x_position").value = x_position;
-                        document.querySelector("#edit-comment-y_position").value = y_position;
-                        document.querySelector("#edit-comment-name").value = name;
-                        document.querySelector("#edit-comment-time").value = time;
-                        document.querySelector("#edit-comment-index").value = index;
-                    });
-                }
-
-                {
-                    // 수정 완료 버튼
-                    const commentUpdateBtn = document.querySelector("#comment-update-btn");
-
-                    // 클릭 이벤트 감지 및 처리
-                    commentUpdateBtn.addEventListener("click", function() {
-                        // 수정 댓글 객체 생성
-                        const comment = {
-                            id: document.querySelector("#edit-comment-id").value,
-                            x_position: document.querySelector("#edit-comment-x_position").value,
-                            y_position: document.querySelector("#edit-comment-y_position").value,
-                            name: document.querySelector("#edit-comment-name").value,
-                            time: document.querySelector("#edit-comment-time").value,
-                            index: document.querySelector("#edit-comment-index").value
-                        };
-
-                        console.log(comment);
-
-                        // 수정 REST API 호출 - fetch()
-                        const url = "/lunch/update/" + comment.id;
-                        fetch(url, {
-                            method: "PATCH",
-                            body: JSON.stringify(comment),
-                            headers: {
-                                "Content-Type": "application/json"
-                            }
-                        }).then(response => {
-                            // 현재 페이지를 새로고침
-                            window.location.reload();
+                            // 데이터를 반영
+                            document.querySelector("#edit-comment-id").value = id;
+                            document.querySelector("#edit-comment-x_position").value = x_position;
+                            document.querySelector("#edit-comment-y_position").value = y_position;
+                            document.querySelector("#edit-comment-name").value = name;
+                            document.querySelector("#edit-comment-time").value = time;
+                            document.querySelector("#edit-comment-index").value = index;
                         });
+                    }
 
-                    });
+                    {
+                        // 수정 완료 버튼
+                        const commentUpdateBtn = document.querySelector("#comment-update-btn");
 
-                }
-            </script>
+                        // 클릭 이벤트 감지 및 처리
+                        commentUpdateBtn.addEventListener("click", function() {
+                            // 수정 댓글 객체 생성
+                            const comment = {
+                                id: document.querySelector("#edit-comment-id").value,
+                                x_position: document.querySelector("#edit-comment-x_position").value,
+                                y_position: document.querySelector("#edit-comment-y_position").value,
+                                name: document.querySelector("#edit-comment-name").value,
+                                time: document.querySelector("#edit-comment-time").value,
+                                index: document.querySelector("#edit-comment-index").value
+                            };
 
-            <!-- 댓글 삭제 -->
-            <script>
-                {
-                    // 삭제 버튼 선택
-                    const commentDeleteBtns = document.querySelectorAll(".comment-delete-btn");
-
-                    // 삭제 버튼 이벤트를 처리
-                    commentDeleteBtns.forEach(btn => {
-                        // 각 버튼의 이벤트 처리를 등록
-                        btn.addEventListener("click", function(event) {
-                            // 이벤트 발생 요소를 선택
-                            const commentDeleteBtn = event.srcElement;
-
-                            // 삭제 댓글 id 가져오기
-                            const commentId = commentDeleteBtn.getAttribute("data-comment-id");
-                            console.log(`삭제 버튼 클릭: ${commentId}번 댓글`); // == "삭제 버튼 클릭: " + commentId + "번 댓글"
-
-                            // 삭제 API 호출 및 처리
-                            const url = `/api/lunch/${commentId}`; // 백틱 숫자 물결 키
+                            // 수정 REST API 호출 - fetch()
+                            const url = "/lunch/update/" + comment.id;
                             fetch(url, {
-                                method: "DELETE"
-                            }).then(response => {
-                                // 댓글 삭제 실패 처리
-                                if (!response.ok) {
-                                    alert("댓글 삭제 실패..!");
-                                    return;
+                                method: "PATCH",
+                                body: JSON.stringify(comment),
+                                headers: {
+                                    "Content-Type": "application/json"
                                 }
-                                // 삭제 성공 시, 댓글을 화면에서 지움!
-                                const target = document.querySelector(`#comments-${commentId}`);
-                                target.remove();
-                            })
-
+                            }).then(response => {
+                                // 현재 페이지를 새로고침
+                                window.location.reload();
+                            });
                         });
-                    });
-                }
-            </script>
+                    }
+                </script>
 
-        </tbody>
-    </div>
-</table>
+                <!-- 댓글 삭제 -->
+                <script>
+                    {
+                        // 삭제 버튼 선택
+                        const commentDeleteBtns = document.querySelectorAll(".comment-delete-btn");
 
-&nbsp;&nbsp;<button type="button" class="btn btn-primary" onclick="location.href='/dinner' ">저녁고르기</button>
+                        // 삭제 버튼 이벤트를 처리
+                        commentDeleteBtns.forEach(btn => {
+                            // 각 버튼의 이벤트 처리를 등록
+                            btn.addEventListener("click", function(event) {
+                                // 이벤트 발생 요소를 선택
+                                const commentDeleteBtn = event.srcElement;
 
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d40322add63529ee31b15f8ccce5d737&libraries=services"></script>
+                                // 삭제 댓글 id 가져오기
+                                const commentId = commentDeleteBtn.getAttribute("data-comment-id");
+                                console.log(`삭제 버튼 클릭: ${commentId}번 댓글`); // == "삭제 버튼 클릭: " + commentId + "번 댓글"
+
+                                // 삭제 API 호출 및 처리
+                                const url = `/api/lunch/${commentId}`; // 백틱 숫자 물결 키
+                                fetch(url, {
+                                    method: "DELETE"
+                                }).then(response => {
+                                    // 댓글 삭제 실패 처리
+                                    if (!response.ok) {
+                                        alert("댓글 삭제 실패..!");
+                                        return;
+                                    }
+                                    // 삭제 성공 시, 댓글을 화면에서 지움!
+                                    const target = document.querySelector(`#comments-${commentId}`);
+                                    target.remove();
+                                })
+
+                            });
+                        });
+                    }
+                </script>
+            </tbody>
+        </div>
+    </table>
+
+    &nbsp;&nbsp;<button type="button" class="btn btn-primary" onclick="location.href='/dinner' ">저녁고르기</button>
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d40322add63529ee31b15f8ccce5d737&libraries=services"></script>
 <script>
 // 마커를 담을 배열입니다
 var markers = [];
