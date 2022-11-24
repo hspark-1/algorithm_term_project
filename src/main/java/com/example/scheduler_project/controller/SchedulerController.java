@@ -8,7 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import com.example.scheduler_project.dto.ArrivalDto;
 import com.example.scheduler_project.dto.LunchDto;
 import com.example.scheduler_project.dto.SchedulerForm;
 import com.example.scheduler_project.entity.Lunch;
@@ -17,7 +16,6 @@ import com.example.scheduler_project.entity.Taken;
 import com.example.scheduler_project.repository.LunchRepository;
 import com.example.scheduler_project.repository.SchedulerRepository;
 import com.example.scheduler_project.repository.TakenRepository;
-import com.example.scheduler_project.service.ArrivalService;
 import com.example.scheduler_project.service.LunchService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +28,6 @@ public class SchedulerController {
 	private SchedulerRepository schedulerRepository;
 	@Autowired
 	private LunchRepository lunchRepository;
-	@Autowired
-	private ArrivalService arrivalService;
 	@Autowired
 	private LunchService lunchService;
 	@Autowired
@@ -57,7 +53,7 @@ public class SchedulerController {
 
 	@GetMapping("/arrival")
 	public String selectArrival(Model model) {
-		List<ArrivalDto> arrivalDto = arrivalService.positions();
+		List<LunchDto> arrivalDto = lunchService.positions(0);
 		model.addAttribute("positionDto", arrivalDto);
 
 		return "arrival";
@@ -66,7 +62,7 @@ public class SchedulerController {
 	@GetMapping("/lunch")
 	public String selectLunch(Model model) {
 		List<LunchDto> lunchDtos = lunchService.positions(1);
-		List<ArrivalDto> arrivalDto = arrivalService.positions();
+		List<LunchDto> arrivalDto = lunchService.positions(0);
 		log.info(arrivalDto.toString());
 		model.addAttribute("positionDto", arrivalDto);
 		model.addAttribute("positionDtos", lunchDtos);
@@ -77,7 +73,7 @@ public class SchedulerController {
 	@GetMapping("/dinner")
 	public String selectDinner(Model model) {
 		List<LunchDto> dinnerDtos = lunchService.positions(2);
-		List<ArrivalDto> arrivalDto = arrivalService.positions();
+		List<LunchDto> arrivalDto = lunchService.positions(0);
 		model.addAttribute("positionDto", arrivalDto);
 		model.addAttribute("positionDtos", dinnerDtos);
 
@@ -87,7 +83,7 @@ public class SchedulerController {
 	@GetMapping("/tourist")
 	public String selectTourist(Model model) {
 		List<LunchDto> touristDtos = lunchService.positions(3);
-		List<ArrivalDto> arrivalDto = arrivalService.positions();
+		List<LunchDto> arrivalDto = lunchService.positions(0);
 		model.addAttribute("positionDto", arrivalDto);
 		model.addAttribute("positionDtos", touristDtos);
 
@@ -115,6 +111,34 @@ public class SchedulerController {
 		
 		return "calculate";
 	}
-	
+
+	@GetMapping("/algorithm")
+	public String algorithm() {
+		List<Scheduler> schedulerEntity = schedulerRepository.findAll();
+		log.info(schedulerEntity.toString());
+		Scheduler scheduler = schedulerEntity.get(0);
+		log.info(scheduler.toString());
+		List<Lunch> arrivalEntity = lunchRepository.findAllByIndex(0);
+		log.info(arrivalEntity.toString());
+		Lunch arrival = arrivalEntity.get(0);
+		log.info(arrival.toString());
+
+		String arrival_time;
+		long arrival_place;
+		int traveldays;
+
+        arrival_time = scheduler.getArrival_time();
+		log.info(arrival_time);
+        arrival_place = arrival.getId();
+		log.info(""+arrival_place);
+        traveldays = scheduler.getTravel_day();
+		log.info(""+traveldays);
+           
+        travel tv = new travel(takenRepository);
+		log.info(""+traveldays);
+        tv.atra(arrival_place, arrival_time, traveldays, tv, scheduler);
+		
+		return "";
+	}
 
 }

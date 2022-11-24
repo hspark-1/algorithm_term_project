@@ -15,7 +15,9 @@ public class TakenDto {
 	
 	private Long id;
 	private Long lunch1;
+	private int start_index;
 	private Long lunch2;
+	private int arrive_index;
 	private int time;
 	private int visit;
 
@@ -23,7 +25,9 @@ public class TakenDto {
 		return new TakenDto(
 			taken.getId(),
 			taken.getLunch1().getId(),
+			taken.getStart_index(),
 			taken.getLunch2().getId(),
+			taken.getArrive_index(),
 			taken.getTime(),
 			taken.getVisit()
 		);

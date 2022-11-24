@@ -116,7 +116,7 @@
 						console.log(`삭제 버튼 클릭: ${commentId}번 댓글`); // == "삭제 버튼 클릭: " + commentId + "번 댓글"
 
 						// 삭제 API 호출 및 처리
-						const url = `/api/arrival/${commentId}`; // 백틱 숫자 물결 키
+						const url = `/api/lunch/${commentId}`; // 백틱 숫자 물결 키
 						fetch(url, {
 							method: "DELETE"
 						}).then(response => {
@@ -353,11 +353,12 @@ function showCordinate(x, y, z) {
 	const position = {
 		x_position: x,
 		y_position: y,
-        name: z
+        name: z,
+        index: 0
 	};
 	console.log(position);
 
-	const url = "/position/create/arrival"
+	const url = "/position/create/lunch"
 	fetch(url, {
 		method: "post",
 		body: JSON.stringify(position),

@@ -28,10 +28,16 @@ public class Taken {
 	@ManyToOne
 	@JoinColumn(name = "start")
 	private Lunch lunch1;
+	
+	@Column
+	private int start_index;
 
 	@ManyToOne
 	@JoinColumn(name = "arrive")
 	private Lunch lunch2;
+	
+	@Column
+	private int arrive_index;
 
 	@Column
 	private int time;
@@ -47,7 +53,9 @@ public class Taken {
 		return new Taken(
 			dto.getId(),
 			lunch1,
+			dto.getStart_index(),
 			lunch2,
+			dto.getArrive_index(),
 			dto.getTime(),
 			dto.getVisit()
 		);

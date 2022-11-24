@@ -260,13 +260,15 @@
 
 <form>
     {{#lunchDtos}}
+    {{index}}
     <div>
+        <input type="hidden" class="form-control form-control-sm" value="{{index}}" id="edit-comment-index1">
         <input type="hidden" class="form-control form-control-sm" value="{{id}}" id="edit-comment-id1">
         <input type="hidden" class="form-control form-control-sm" value="{{x_position}}" id="edit-comment-time-x">
         <input type="hidden" class="form-control form-control-sm" value="{{y_position}}" id="edit-comment-time-y">
     </div>
     {{/lunchDtos}}
-    &nbsp;&nbsp;<button type="button" id="cal-time-btn" class="btn btn-primary" onclick="location.href='/mainpage' ">여행 계획 끝내기</button>
+    &nbsp;&nbsp;<button type="button" id="cal-time-btn" class="btn btn-primary" onclick="location.href='/algorithm' ">여행 계획 끝내기</button>
 </form>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d40322add63529ee31b15f8ccce5d737&libraries=services"></script>
@@ -565,35 +567,43 @@ function removeAllChildNods(el) {
             var a = document.querySelectorAll("#edit-comment-time-x");
             var b = document.querySelectorAll("#edit-comment-time-y");
             var c = document.querySelectorAll("#edit-comment-id1");
+            var d = document.querySelectorAll("#edit-comment-index1");
             var x = [];
             var y = [];
             var z = [];
+            var k = [];
             for(var i = 0; i <= a.length-1; i++){
                 x.push(a[i].value);
                 y.push(b[i].value);
                 z.push(c[i].value);
+                k.push(d[i].value);
             }
             var comment = [];
             for(var i=0; i<=a.length-1; i++) {
                 comment[i] = {
                     x_position: x[i],
                     y_position: y[i],
-                    id: z[i]
+                    id: z[i],
+                    index: k[i]
                 }
+                console.log(comment[i]);
             }
             for(var i = 0; i <= a.length-1; i++) {
                 for(var j = 0; j <= a.length-1; j++) {
                     if(i==j) {
                         continue;
                     }
+                    if(comment[j].index == 0) {
+                        continue;
+                    }
                     console.log(comment[i]);
-                    getTime(comment[i].id, comment[i].x_position, comment[i].y_position, comment[j].id, comment[j].x_position, comment[j].y_position);
+                    getTime(comment[i].id, comment[i].index, comment[i].x_position, comment[i].y_position, comment[j].id, comment[j].index, comment[j].x_position, comment[j].y_position);
                     sleep(300);
                 }
             }
     })
 
-    function getTime(id1, startX, startY, id2, endX, endY) {
+    function getTime(id1, ind1, startX, startY, id2, ind2, endX, endY) {
         //var startX = 127.12994455070641;
         //var startY = 37.45042146197268;
         //var endX = x;
@@ -638,7 +648,9 @@ function removeAllChildNods(el) {
 
                 const taken = {
                     lunch1: id1,
+                    start_index: ind1,
                     lunch2: id2,
+                    arrive_index: ind2,
                     time: tTime,
                     visit: 0
                 };
