@@ -16,6 +16,7 @@ import com.example.scheduler_project.entity.Taken;
 import com.example.scheduler_project.repository.LunchRepository;
 import com.example.scheduler_project.repository.SchedulerRepository;
 import com.example.scheduler_project.repository.TakenRepository;
+import com.example.scheduler_project.repository.resultRepository;
 import com.example.scheduler_project.service.LunchService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,8 @@ public class SchedulerController {
 	private LunchService lunchService;
 	@Autowired
 	private TakenRepository takenRepository;
+	@Autowired
+	private resultRepository resultrepository;
 
 	@GetMapping("/mainpage")
 	public String index() {
@@ -113,7 +116,12 @@ public class SchedulerController {
 	}
 
 	@GetMapping("/algorithm")
-	public String algorithm() {
+	public String asd() {
+		return "asd";
+	}
+
+	@GetMapping("/result")
+	public String algorithm(Model model) {
 		List<Scheduler> schedulerEntity = schedulerRepository.findAll();
 		log.info(schedulerEntity.toString());
 		Scheduler scheduler = schedulerEntity.get(0);
@@ -134,11 +142,11 @@ public class SchedulerController {
         traveldays = scheduler.getTravel_day();
 		log.info(""+traveldays);
            
-        travel tv = new travel(takenRepository);
+        travel tv = new travel(resultrepository, takenRepository, lunchRepository);
 		log.info(""+traveldays);
-        tv.atra(arrival_place, arrival_time, traveldays, tv, scheduler);
+        tv.atra(arrival_place, arrival_time, traveldays, tv, scheduler, model);
 		
-		return "";
+		return "result";
 	}
 
 }

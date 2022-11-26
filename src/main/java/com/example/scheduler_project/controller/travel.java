@@ -2,9 +2,16 @@ package com.example.scheduler_project.controller;
 
 import java.util.List;
 
+import org.springframework.ui.Model;
+
+import com.example.scheduler_project.dto.resultDto;
+import com.example.scheduler_project.entity.Lunch;
 import com.example.scheduler_project.entity.Scheduler;
 import com.example.scheduler_project.entity.Taken;
+import com.example.scheduler_project.entity.result;
+import com.example.scheduler_project.repository.LunchRepository;
 import com.example.scheduler_project.repository.TakenRepository;
+import com.example.scheduler_project.repository.resultRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,10 +78,14 @@ class PlaceList {
 @Slf4j
 public class travel{
 
+	final resultRepository resultrepository;
 	final TakenRepository takenRepository;
+	final LunchRepository lunchRepository;
 	
 	List<Scheduler> schedulerEntity;
 	Scheduler scheduler;
+		
+	Model model;
 
 	private int returntime;
 	
@@ -110,52 +121,96 @@ public class travel{
     		min = min % 60;
     	}
     	
-    	time = Integer.toString(hour) + ":" + Integer.toString(min);
+		if(min<10) {
+			time = Integer.toString(hour) + ":0" + Integer.toString(min);
+		} else {
+			time = Integer.toString(hour) + ":" + Integer.toString(min);
+		}
     	return time;
     }
     
-    private int TimeCheck(String time) {
+    private int checkTime(String startasd, String endasd) {
 		String returntime1 = scheduler.getReturn_time();
 		String[] str = returntime1.split(":");
 		returntime = Integer.parseInt(str[0]) * 60 + Integer.parseInt(str[1]);
-    	int intTime = ChangetoMiniute(time);
-		if(intTime > 720 &&intTime < 840 )		// 점심시간 (12:00 ~ 14:00)
-			return 1;
-		else if (intTime >1080 && intTime < 1200)  // 저녁시간 (18:00 ~ 20:00)
-			return 2;
-		else if (intTime > returntime)	// 복귀시간 (21:00 ~)
-			return 3;
-		else 
+    	int startTime1 = ChangetoMiniute(startasd);
+    	int endTime1 = ChangetoMiniute(endasd);
+		if(endTime1<=720) { // 관광지 11시에 시작하는데 여기서 고른 관광지가 만약 15시에 끝나 그러면 12 - 14는 속하는 게 없으니까
 			return 0;
-    }
+		} else if(endTime1>=720 && endTime1<=840 && day_meal[days] < 1) {
+			return 1;
+		} else if(startTime1>=720 && startTime1<=840 && day_meal[days] < 1) { // 점심
+			return 1;
+		} else if(endTime1>=720 && endTime1<=840 && startTime1>=720 && startTime1<=840 && day_meal[days] < 1) { // 점심
+			return 1;
+		} else if(startTime1<=720 && endTime1>=840 && day_meal[days] < 1) { // 점심 12시 - 14시
+			return 1;
+		} else if(startTime1>=1080 && startTime1<=1200 && day_meal[days] < 2) { // 저녁 18시 - 20시
+			return 2;
+		} else if(endTime1>=1080 && endTime1<=1200 && day_meal[days] < 2) { // 저녁
+			return 2;
+		} else if(endTime1>=1080 && endTime1<=1200 && startTime1>=1080 && startTime1<=1200 && day_meal[days] < 2) { // 저녁
+			return 2;
+		} else if(startTime1<=1080 && endTime1>=1200 && day_meal[days] < 2) { // 저녁
+			return 2;
+		} else if(endTime1>=(returntime+60)) { // 집
+			return 3;
+		} else if(startTime1>=returntime) {
+			return 3;
+		} else {
+			return 0;
+		}
+	}
     
-    private void PrintPlaceList(PlaceList[] list) {
+    private void PrintPlaceList(PlaceList[] list, int z) {
     	//System.out.println("[" + place_list[0].getday() + "]");
-    	//System.out.println(place_list[0].getplace() + "에서 " + place_list[0].gettaketime() + "분 이동");  	
-    	
+    	//System.out.println(place_list[0].getplace() + "에서 " + place_list[0].gettaketime() + "분 이동");  
+		if(z==0) {
+			model.addAttribute("msg", "no tour");
+		} else if(z==1) {
+			model.addAttribute("msg", "no tour last day");
+		} else if(z==2) {
+			model.addAttribute("msg", "no time last day");
+		} else if(z==3) {
+			model.addAttribute("msg", "no lunch");
+		} else if(z==4) {
+			model.addAttribute("msg", "no dinner");
+		}
+
+		log.info("count = " + count);
+		int zdxc = 0;
     	for (int i = 0; i < count; i++) {
-    		if(place_list[i].getstarttime().equals(scheduler.getDeparture_time())) {
+    		if(place_list[i].getstarttime().equals(scheduler.getDeparture_time()) && zdxc == 0) { // 11:00을 거르는데 쟤가 걸림 그러면
     			log.info("[" + place_list[i].getday() + "]");
+				zdxc = 1;
     		}
     		else {
-    			log.info(place_list[i].getplace() + " (" + place_list[i].getstarttime() + " ~ " + place_list[i].getendtime() + ")");
+				Lunch lunch = lunchRepository.findById(place_list[i].getplace()).orElse(null);
+				String a = " (" + place_list[i].getstarttime() + " ~ " + place_list[i].getendtime() + ")";
+				String b = place_list[i].gettaketime() + "분 이동";
+				result newResult = resultDto.toEntity(lunch.getName(), a, b);
+				log.info(newResult.toString());
+				result save = resultrepository.save(newResult);
+				log.info("save = " + save);
+    			log.info(lunch.getName() + " (" + place_list[i].getstarttime() + " ~ " + place_list[i].getendtime() + ")");
 				log.info(place_list[i].gettaketime() + "분 이동");
+				zdxc = 0;
     		}
     	}
+		List<result> results = resultrepository.findAll();
+		log.info(results.toString());
+		model.addAttribute("resultEntity", results);
     }
 
     public void ComputeNextPlace(long current_place, String current_time) {   // 시간을 통해 다음으로 할 행동을 정함, 현재 시간 또는 다음장소로 이동했을때의 시간을 조건으로 삼는다
         // 데이터베이스를 통해서 현재 위치에서 가장 가까운 장소를 찾고 거기까지 가는 시간을 받아옴(String or int 형식), (일단 int형식으로 받아온다고 가정)
     	// 방문여부가 Yes라면 패스    	
-    	long NextPlace = 1; // 다음으로 이동할 장소의 ID를 받아옴
-    	int TimetoNextPlace = 30; // 이러면 30분이 걸린다고 가정 (실제 코드에서는 함수를 통해 시간을 받아옴)
-    	int PlayTime = 30; // 데이터베이스에서 다음 장소에서 노는 시간을 받아옴 (실제 코드에서는 함수를 통해 시간을 받아옴, NextPlace를 인자로 넘김, sql사용)
+		int asd = 1;
+    	long NextPlace; // 다음으로 이동할 장소의 ID를 받아옴
+    	int TimetoNextPlace; // 이러면 30분이 걸린다고 가정 (실제 코드에서는 함수를 통해 시간을 받아옴)
+    	int PlayTime; // 데이터베이스에서 다음 장소에서 노는 시간을 받아옴 (실제 코드에서는 함수를 통해 시간을 받아옴, NextPlace를 인자로 넘김, sql사용)
 		if(count == 0) { // 처음 도착지점에서 출발할 때
 			List<Taken> takenEntity = takenRepository.findFirsttourlocation(current_place);
-			if(takenEntity == null) {
-				throw new IllegalArgumentException("갈 곳이 없음.");
-			}
-			log.info(takenEntity.toString());
 			Taken taken = takenEntity.get(0);
 			NextPlace = taken.getLunch2().getId();
 			TimetoNextPlace = taken.getTime();
@@ -163,79 +218,113 @@ public class travel{
 		}
 		else { // 나머지 전부. 현재 지점에서 제일 가까운 관광지
 			List<Taken> takenEntity = takenRepository.findtourlocation(current_place);
-			if(takenEntity == null) {
-				throw new IllegalArgumentException("갈 곳이 없음.");
+			Taken taken;
+			try {
+				taken = takenEntity.get(0);
+			} catch (Exception e) { // 점심 저녁은 남았는데 관광지가 없는 상황.
+    			PrintPlaceList(place_list, 0);
+    			return;
 			}
-			Taken taken = takenEntity.get(0);
 			NextPlace = taken.getLunch2().getId();
 			TimetoNextPlace = taken.getTime();
 			PlayTime = taken.getLunch1().getTime();
 		}
 		
     	String ExpectTime = ComputeTime(current_time, TimetoNextPlace, PlayTime); // 현재 시간이랑 걸리는 시간, 노는 시간을 함수로 넘겨서 다음 장소에서의 끝나는 시간을 구함
+		log.info(current_time);
+		log.info(ExpectTime);
     	
 		if(days == traveldays) { // 마지막 날일경우
-    		if(TimeCheck(ExpectTime) == 3) { // 출력문
-    			PrintPlaceList(place_list);
+			List<Taken> takenEntity = takenRepository.findNotvisit(current_place);
+			try {
+				Taken taken = takenEntity.get(0);
+			} catch (Exception e) { // 마지막 날 점심 저녁이 남았는 지 아닌 지 모르지만 관광지가 없는 상황
+    			PrintPlaceList(place_list, 1);
+    			return;
+			}
+			
+    		if(checkTime(current_time, ExpectTime) == 3) { // 출력문 // 마지막 날 아직 갈 곳이 남았는데 시간이 늦은 상황.
+    			PrintPlaceList(place_list, 2);
     			return;
     		}
     	}
-    	else if((TimeCheck(current_time) == 1 || TimeCheck(ExpectTime) == 1) && day_meal[days] != 1){ // 현재 시간 또는 다음 장소에 도착할 시간이 점심 또는 저녁시간이라면(1이면 점심, 2면 저녁, 0이면 패스)
+    	
+		if((checkTime(current_time, ExpectTime) == 1)){ // 현재 시간 또는 다음 장소에 도착할 시간이 점심 또는 저녁시간이라면(1이면 점심, 2면 저녁, 0이면 패스)
         	// 데이터테이블에서 정보를 뽑아옴(Lunch만)
 			List<Taken> takenEntity = takenRepository.findFirstLunchlocation(current_place);
-			if(takenEntity == null) {
-				throw new IllegalArgumentException("갈 곳이 없음.");
+			Taken taken;
+			try {
+				taken = takenEntity.get(0);
+			} catch (Exception e) { // 점심 먹어야하는데 갈 곳이 없는 상황.
+    			PrintPlaceList(place_list, 3); // no lunch
+    			return ;
 			}
-			Taken taken = takenEntity.get(0);
 			NextPlace = taken.getLunch2().getId();
 			TimetoNextPlace = taken.getTime();
 			PlayTime = taken.getLunch1().getTime();
 
     		ExpectTime = ComputeTime(current_time, TimetoNextPlace, PlayTime);
+			log.info("for lunch = " + current_time);
+			log.info(ExpectTime);
     		day_meal[days]++;
     		//데이터베이스에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
-			takenRepository.updateLunchlocation(NextPlace);
+			takenRepository.updateLunchlocation(current_place);
         }
-    	else if((TimeCheck(current_time) == 2 || TimeCheck(ExpectTime) == 2) && day_meal[days] != 2) {
+    	else if((checkTime(current_time, ExpectTime) == 2)) {
     		// 데이터테이블에서 정보를 뽑아옴(Dinner만)
 			List<Taken> takenEntity = takenRepository.findFirstDinnerlocation(current_place);
-			if(takenEntity == null) {
-				throw new IllegalArgumentException("갈 곳이 없음.");
+			Taken taken;
+			try {
+				taken = takenEntity.get(0);
+			} catch (Exception e) { // 저녁 먹어야하는데 갈 곳이 없는 상황.
+    			PrintPlaceList(place_list, 4);
+    			return;
 			}
-			Taken taken = takenEntity.get(0);
 			NextPlace = taken.getLunch2().getId();
 			TimetoNextPlace = taken.getTime();
 			PlayTime = taken.getLunch1().getTime();
 			
     		ExpectTime = ComputeTime(current_time, TimetoNextPlace, PlayTime);
+			log.info("for dinner = " + current_time);
+			log.info(ExpectTime);
     		day_meal[days]++;
     		// DB에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
-			takenRepository.updateDinnerlocation(NextPlace);
+			takenRepository.updateDinnerlocation(current_place);
         }
-        else if (TimeCheck(current_time) == 3 || TimeCheck(ComputeTime(current_time, PlayTime, 0)) == 3){ // 숙소로 돌아갈 시간이 되었다면
+        else if (checkTime(current_time, ExpectTime) == 3) { // 숙소로 돌아갈 시간이 되었다면
+			Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+			if(lunch.getIndex()==2) {
+				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
+				takenRepository.updateTourlocation(current_place);
+			}
             days++;	// 여행 날짜를 하나 증가시킴
             TimetoNextPlace = 0;
             current_time = scheduler.getDeparture_time(); // 시작시간으로 초기화
+			asd = 0;
 			log.info("1 day left ------------------------------------------");
         }
         else {
         	// DB에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
-			takenRepository.updateTourlocation(NextPlace);
+			takenRepository.updateTourlocation(current_place);
         }
-    	   
+
     	place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
-    	current_place = NextPlace;
+		
+		if(TimetoNextPlace != 0) { // 날짜 바뀔 때 현재 장소가 다음 장소로 바뀌면, 이제 다음 날 현재 장소 기준으로 서치 할 텐데 다음 날 넥스트 플레이스보다 현재 플레이스가 맞을 거 같아서
+		}
+		current_place = NextPlace;
 
 		log.info("---------------------------------------------------------------------one place---------------------------------------");
     	
-    	if (current_time.equals(scheduler.getDeparture_time()))
+    	if (asd == 0)
     		ComputeNextPlace(current_place, ComputeTime(current_time, 0, 0));
     	else
     		ComputeNextPlace(current_place, ComputeTime(current_time, TimetoNextPlace, PlayTime));
     	return;
     }
 
-	public void atra(long current_place, String current_time, int traveldaysa, travel tv, Scheduler scheduler1) {
+	public void atra(long current_place, String current_time, int traveldaysa, travel tv, Scheduler scheduler1, Model model1) {
+		model = model1;
 		scheduler = scheduler1;
 		log.info("travel.java");
         arrival_time = current_time;

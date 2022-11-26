@@ -52,5 +52,10 @@ public interface TakenRepository extends JpaRepository<Taken, Long> {
             "UPDATE TAKEN t set visit = 1 where t.arrive = ?1",
             nativeQuery = true)
 	int updateDinnerlocation(long current_place);
+	
+	@Query(value =
+            "SELECT * FROM TAKEN where visit = 0 order by time",
+            nativeQuery = true)
+	List<Taken> findNotvisit(long current_place);
 
 }
