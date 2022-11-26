@@ -13,6 +13,7 @@ import com.example.scheduler_project.dto.SchedulerForm;
 import com.example.scheduler_project.entity.Lunch;
 import com.example.scheduler_project.entity.Scheduler;
 import com.example.scheduler_project.entity.Taken;
+import com.example.scheduler_project.entity.result;
 import com.example.scheduler_project.repository.LunchRepository;
 import com.example.scheduler_project.repository.SchedulerRepository;
 import com.example.scheduler_project.repository.TakenRepository;
@@ -146,6 +147,13 @@ public class SchedulerController {
 		log.info(""+traveldays);
         tv.atra(arrival_place, arrival_time, traveldays, tv, scheduler, model);
 		
+		return "result";
+	}
+
+	@GetMapping("/testpage")
+	public String testpage(Model model) {
+		List<result> results = resultrepository.findAll();
+		model.addAttribute("resultEntity", results);
 		return "result";
 	}
 

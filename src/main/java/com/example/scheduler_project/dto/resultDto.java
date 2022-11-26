@@ -11,11 +11,13 @@ public class resultDto {
 	
 	private Long id;
 	private String name;
-	private String time;
-	private String move;
+	private String starttime;
+	private String endtime;
+	private long move;
+	private long day;
 
-	public static result toEntity(String name, String time, String move) {
-		return new result(null, name, time, move);
+	public static result toEntity(String name, String starttime, String endtime, long move, long day) {
+		return new result(null, name, starttime, endtime, move, day);
 	}
 	
 }

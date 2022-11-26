@@ -50,12 +50,9 @@
 .info .close {position: absolute;top: 10px;right: 10px;color: #888;width: 17px;height: 17px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');}
 .info .close:hover {cursor: pointer;}
 .info .body {position: relative;overflow: hidden;}
-.info .desc {position: relative;margin: 13px 0 0 90px;height: 75px;}
+.info .desc {position: relative;margin: 6px 0 0 10px;height: 75px;}
 .desc .ellipsis {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
 .desc .jibun {font-size: 11px;color: #888;margin-top: -2px;}
-.info .img {position: absolute;top: 6px;left: 5px;width: 73px;height: 71px;border: 1px solid #ddd;color: #888;overflow: hidden;}
-.info:after {content: '';position: absolute;margin-left: -12px;left: 50%;bottom: 0;width: 22px;height: 12px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png')}
-.info .link {color: #5085BB;}
 </style>
 </head>
 <body>
@@ -493,9 +490,19 @@ function showCordinate(x, y, z) {
 }
 
 function displayInfowindow(marker, title, place) {
-    var x = marker.getPosition().getLng();
     var y = marker.getPosition().getLat();
-    var z = place.place_name;
+    var x = marker.getPosition().getLng();
+    map.setCenter(marker.getPosition());
+
+    var roadAddress = place.road_address_name;
+    var address = place.address_name;
+    var phone = place.phone;
+
+
+
+
+
+
     var content = '<div class="wrap">' + 
             '    <div class="info">' + 
             '        <div class="title">' + 
@@ -503,22 +510,23 @@ function displayInfowindow(marker, title, place) {
             '            <div class="close" onclick="closeOverlay();" title="닫기"></div>' + 
             '        </div>' + 
             '        <div class="body">' + 
-            '            <div class="img">' +
-            '                <img src="https://cfile181.uf.daum.net/image/250649365602043421936D" width="73" height="70">' +
-            '           </div>' + 
             '            <div class="desc">' + 
-            '                <div class="ellipsis">제주특별자치도 제주시 첨단로 242</div>' + 
-            '                <div class="jibun ellipsis">(우) 63309 (지번) 영평동 2181</div>' + 
-            '                <div><a href="https://www.kakaocorp.com/main" target="_blank" class="link">홈페이지</a></div>' + 
-            '                <div onclick="showCordinate(' + x + ', ' + y + ',\'' + z + '\');">확인</div>' +
+            '                <div class="ellipsis">' +
+                                roadAddress + 
+            '                   </div>' + 
+            '                <div class="jibun ellipsis">' +
+                                address +
+            '                   </div>' + 
+            '                <div class="phone">' +
+                                phone + 
+            '                   </div>' + 
+            '                <button type="button" style="border-radius: 5px;" onclick="showCordinate(' + x + ', ' + y + ', \'' + title +'\');">추가하기</div>' +
             '            </div>' + 
             '        </div>' + 
             '    </div>' +    
             '</div>';
     overlay.setContent(content);
     overlay.setPosition(marker.getPosition());
-    //infowindow.setContent(content);
-    //infowindow.open(map, marker);
     overlay.setMap(map);
 }
 

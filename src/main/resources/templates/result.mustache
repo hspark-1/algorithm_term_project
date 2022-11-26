@@ -5,30 +5,60 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Document</title>
+	<style>
+		.day-div {
+			position: relative;
+			float: left;
+			text-align: center;
+		}
+		.place-div {
+			position: relative;
+			width: 80%;
+		}
+	</style>
 </head>
 <body>
+	{{#msg}}
+	<input type="hidden" value="{{msg}}" id="get-msg">
+	<script>
+		var a = document.querySelector("#get-msg");
+		alert(a.value);
+	</script>
+	{{/msg}}
+	<div class="day-div">
+		<div class="place-div">
+			
+		</div>
+	</div>
 	<table class="table">
 		<thead>
-		<tr>
-		  <th scope="col">ID</th>
-		  <th scope="col">Title</th>
-		  <th scope="col">Content</th>
-		</tr>
+			<tr>
+				<th scope="col">ID</th>
+				<th scope="col">Title</th>
+				<th scope="col">Content</th>
+			</tr>
 		</thead>
 		<tbody>
-		{{#resultEntity}}
-		<tr>
-			<th>{{name}}</th>
-			<th>{{time}}</th>
-			<td>{{move}}</td>
-		</tr>
-		{{/resultEntity}}
+			<script>
+				var i = 0;
+			</script>
+			{{#resultEntity}}
+			<tr>
+				<th>{{day}}일차 {{name}}</th>
+				<th>{{starttime}} ~ {{endtime}}</th>
+				<input type="hidden" value="{{move}}" id="get-move">
+				<script>
+					var a = document.querySelectorAll("#get-move");
+					if(a[i].value == "0분 이동") {
+						document.write("<th>일정 종료</th>");
+					} else {
+						document.write("<th>" + a[i].value + "</th>");
+					}
+					i++;
+				</script>
+			</tr>
+			{{/resultEntity}}
 		</tbody>
 	</table>
-	{{#msg}}
-	<div>
-	  {{msg}}
-	</div>
-	{{/msg}}
 </body>
 </html>

@@ -25,9 +25,15 @@ public class result {
 	private String name;
 
 	@Column
-	private String time;
+	private String starttime;
 
 	@Column
-	private String move;
+	private String endtime;
+
+	@Column
+	private Long move;
+
+	@Column
+	private Long day;
 	
 }
