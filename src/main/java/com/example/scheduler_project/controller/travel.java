@@ -383,6 +383,7 @@ public class travel{
 					PrintPlaceList(place_list, 2);
 					return;
 				}
+				log.info("days = " + days);
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), 0, days-1);
     			PrintPlaceList(place_list, 0); // no tour
     			return;
@@ -582,6 +583,7 @@ public class travel{
         	// DB에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
 			takenRepository.updateTourlocation(current_place);
 			if(ChangetoMiniute(ComputeTime(current_time, TimetoNextPlace, PlayTime))>returntime) {
+				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
 				days++;
 				TimetoNextPlace = 0;
 				current_time = scheduler.getDeparture_time(); // 시작시간으로 초기화
@@ -589,6 +591,7 @@ public class travel{
 			}
         }
 
+		log.info("days = " + days);
     	place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
 		
 		if(TimetoNextPlace != 0) { // 날짜 바뀔 때 현재 장소가 다음 장소로 바뀌면, 이제 다음 날 현재 장소 기준으로 서치 할 텐데 다음 날 넥스트 플레이스보다 현재 플레이스가 맞을 거 같아서
