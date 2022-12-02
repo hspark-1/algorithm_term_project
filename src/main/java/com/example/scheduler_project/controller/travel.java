@@ -401,6 +401,7 @@ public class travel{
 			List<Taken> takenEntity = takenRepository.findNotvisit(current_place);
 			try {
 				Taken taken = takenEntity.get(0);
+				log.info(taken.toString());
 			} catch (Exception e) { // 마지막 날인데 전부 visit이 0이 아님 전부 다 갔음.
 				Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
 				PlayTime = lunch.getTime();
