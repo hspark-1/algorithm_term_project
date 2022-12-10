@@ -44,6 +44,11 @@ public class SchedulerController {
 
 	@PostMapping("/create")
 	public String createArticle(SchedulerForm form) {
+		List<Scheduler> targetScheduler = schedulerRepository.findAll();
+		for(int i=0; i<targetScheduler.size(); i++) {
+			Scheduler target = targetScheduler.get(i);
+			schedulerRepository.delete(target);
+		}
 		log.info(form.toString());
 
 		Scheduler article = form.toEntity();
@@ -98,26 +103,18 @@ public class SchedulerController {
 		return "tourist";
 	}
 
-	@GetMapping("/map")
-	public String map(){
-		return "map";
-	}
-
-	@GetMapping("/cal")
-	public String Cal(Model model) {
-		List<Lunch> lunchEntity = lunchRepository.findAll();
-		model.addAttribute("lunchDtos", lunchEntity);
-		log.info(lunchEntity.toString());
-
-		List<Taken> takens = takenRepository.findAll();
-		model.addAttribute("takensEntity", takens);
-		log.info(takens.toString());
-		
-		return "calculate";
-	}
-
 	@GetMapping("/algorithm")
 	public String asd() {
+		List<result> targetResult = resultrepository.findAll();
+		List<Taken> targetTaken = takenRepository.findAll();
+		for(int i=0; i<targetResult.size(); i++) {
+			result target = targetResult.get(i);
+			resultrepository.delete(target);
+		}
+		for(int i=0; i<targetTaken.size(); i++) {
+			Taken target = targetTaken.get(i);
+			takenRepository.delete(target);
+		}
 		return "asd";
 	}
 
@@ -150,11 +147,31 @@ public class SchedulerController {
 		return "result";
 	}
 
-	@GetMapping("/testpage")
-	public String testpage(Model model) {
-		List<result> results = resultrepository.findAll();
-		model.addAttribute("resultEntity", results);
-		return "result";
+	@GetMapping("/reset")
+	public String reset() {
+		List<Lunch> targetLunch = lunchRepository.findAll();
+		List<result> targetResult = resultrepository.findAll();
+		List<Taken> targetTaken = takenRepository.findAll();
+		List<Scheduler> targetScheduler = schedulerRepository.findAll();
+
+		for(int i=0; i<targetResult.size(); i++) {
+			result target = targetResult.get(i);
+			resultrepository.delete(target);
+		}
+		for(int i=0; i<targetTaken.size(); i++) {
+			Taken target = targetTaken.get(i);
+			takenRepository.delete(target);
+		}
+		for(int i=0; i<targetLunch.size(); i++) {
+			Lunch target = targetLunch.get(i);
+			lunchRepository.delete(target);
+		}
+		for(int i=0; i<targetScheduler.size(); i++) {
+			Scheduler target = targetScheduler.get(i);
+			schedulerRepository.delete(target);
+		}
+
+		return "redirect:/mainpage";
 	}
 
 }

@@ -16,12 +16,12 @@ import com.example.scheduler_project.repository.resultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-class PlaceList {
-	private long place;		// 이 장소의 ID
-	private String start_time;	// 이 장소에서 시작하느 시간
-	private int play_time;	// 이 장소에서 노는 시간
-	private String end_time;	// 이 장소에서 마치는 시간
-	private int take_time;	// 다음 장소까지 걸리는 시간
+class PlaceList { // object for storing places
+	private long place;
+	private String start_time;
+	private int play_time;
+	private String end_time;
+	private int take_time;
 	private int day;
 	
 	public PlaceList() {
@@ -78,29 +78,27 @@ class PlaceList {
 @Slf4j
 public class travel{
 
+	// repository to communicate with the database
 	final resultRepository resultrepository;
 	final TakenRepository takenRepository;
 	final LunchRepository lunchRepository;
 	
+	// Variables to store data in the database
 	List<Scheduler> schedulerEntity;
 	Scheduler scheduler;
-		
 	Model model;
-
 	private int returntime;
-	
 	private static String arrival_time;
 	private static long arrival_place;
 	private static int traveldays;
+
 	public int days = 1;
 	public int jud_day = days;
 	public int count = 0;
 	public int[] day_meal = new int[100];
-    
     private PlaceList[] place_list = new PlaceList[10000];
- 
     
-    private int ChangetoMiniute(String time){
+    private int ChangetoMiniute(String time){ // Convert data stored in "HH:MM" format to minutes
         String[] temp = time.split(":");
         int hour = Integer.parseInt(temp[0]);
         int min = Integer.parseInt(temp[1]);
@@ -108,7 +106,7 @@ public class travel{
         return hour * 60 + min;
     }
     
-    private String ComputeTime(String CurrentTime, int taketime, int PlayTime) {
+    private String ComputeTime(String CurrentTime, int taketime, int PlayTime) { // Calculate current time + travel time + required time
     	String time = "";
     	String[] temp = CurrentTime.split(":");
     	int hour = Integer.parseInt(temp[0]);
@@ -130,42 +128,41 @@ public class travel{
     	return time;
     }
     
-    private int checkTime(String startasd, String endasd) {
+    private int checkTime(String startasd, String endasd) { // decide what to do now current time
 		String returntime1 = scheduler.getReturn_time();
 		String[] str = returntime1.split(":");
 		returntime = Integer.parseInt(str[0]) * 60 + Integer.parseInt(str[1]);
     	int startTime1 = ChangetoMiniute(startasd);
     	int endTime1 = ChangetoMiniute(endasd);
-		if(endTime1<=720) { // 관광지 11시에 시작하는데 여기서 고른 관광지가 만약 15시에 끝나 그러면 12 - 14는 속하는 게 없으니까
+		if(endTime1<=720) { // tour before 12
 			return 0;
-		} else if(endTime1>=720 && endTime1<=840 && day_meal[days] < 1) {
+		} else if(endTime1>=720 && endTime1<=840 && day_meal[days] < 1) { // Lunch 12 - 14
 			return 1;
-		} else if(startTime1>=720 && startTime1<=840 && day_meal[days] < 1) { // 점심
+		} else if(startTime1>=720 && startTime1<=840 && day_meal[days] < 1) { // Lunch 12 - 14
 			return 1;
-		} else if(endTime1>=720 && endTime1<=840 && startTime1>=720 && startTime1<=840 && day_meal[days] < 1) { // 점심
+		} else if(endTime1>=720 && endTime1<=840 && startTime1>=720 && startTime1<=840 && day_meal[days] < 1) { // Lunch 12 - 14
 			return 1;
-		} else if(startTime1<=720 && endTime1>=840 && day_meal[days] < 1) { // 점심 12시 - 14시
+		} else if(startTime1<=720 && endTime1>=840 && day_meal[days] < 1) { // Lunch 12 - 14
 			return 4;
-		} else if(startTime1>=1080 && startTime1<=1200 && day_meal[days] < 2) { // 저녁 18시 - 20시
+		} else if(startTime1>=1080 && startTime1<=1200 && day_meal[days] < 2) { // Dinner 18 - 20
 			return 2;
-		} else if(endTime1>=1080 && endTime1<=1200 && day_meal[days] < 2) { // 저녁
+		} else if(endTime1>=1080 && endTime1<=1200 && day_meal[days] < 2) { // Dinner 18 - 20
 			return 2;
-		} else if(endTime1>=1080 && endTime1<=1200 && startTime1>=1080 && startTime1<=1200 && day_meal[days] < 2) { // 저녁
+		} else if(endTime1>=1080 && endTime1<=1200 && startTime1>=1080 && startTime1<=1200 && day_meal[days] < 2) { // Dinner 18 - 20
 			return 2;
-		} else if(startTime1<=1080 && endTime1>=1200 && day_meal[days] < 2) { // 저녁
+		} else if(startTime1<=1080 && endTime1>=1200 && day_meal[days] < 2) { // Dinner 18 - 20
 			return 5;
-		} else if(endTime1>=(returntime+30)) { // 집
+		} else if(endTime1>=(returntime+30)) { // return after return-time
 			return 3;
-		} else if(startTime1>=returntime) {
+		} else if(startTime1>=returntime) { // return after return-time
 			return 3;
-		} else {
+		} else { // tour
 			return 0;
 		}
 	}
     
-    private void PrintPlaceList(PlaceList[] list, int z) {
-    	//System.out.println("[" + place_list[0].getday() + "]");
-    	//System.out.println(place_list[0].getplace() + "에서 " + place_list[0].gettaketime() + "분 이동");  
+    private void PrintPlaceList(PlaceList[] list, int z) { // Stored in the itinerary database calculated by the algorithm
+		// Alert message to communicate with users
 		if(z==0) {
 			model.addAttribute("msg", "당신의 투어 결과.");
 		} else if(z==1) {
@@ -181,11 +178,11 @@ public class travel{
 		log.info("count = " + count);
 		int zdxc = 0;
     	for (int i = 0; i < count; i++) {
-    		if(place_list[i].getstarttime().equals(scheduler.getDeparture_time()) && zdxc == 0) { // 11:00을 거르는데 쟤가 걸림 그러면
+    		if(place_list[i].getstarttime().equals(scheduler.getDeparture_time()) && zdxc == 0) { // when the date changes
     			log.info("[" + place_list[i].getday() + "]");
 				zdxc = 1;
     		}
-    		else {
+    		else { // Travel itinerary (save travel location, travel time, travel time, date)
 				Lunch lunch = lunchRepository.findById(place_list[i].getplace()).orElse(null);
 				String a = place_list[i].getstarttime();
 				String d = place_list[i].getendtime();
@@ -200,42 +197,48 @@ public class travel{
 				zdxc = 0;
     		}
     	}
+
+		// Pass the model loaded from the database to the viewpager
 		List<result> results = resultrepository.findAll();
 		log.info(results.toString());
 		model.addAttribute("resultEntity", results);
     }
 
-    public void ComputeNextPlace(long current_place, String current_time) {   // 시간을 통해 다음으로 할 행동을 정함, 현재 시간 또는 다음장소로 이동했을때의 시간을 조건으로 삼는다
-        // 데이터베이스를 통해서 현재 위치에서 가장 가까운 장소를 찾고 거기까지 가는 시간을 받아옴(String or int 형식), (일단 int형식으로 받아온다고 가정)
-    	// 방문여부가 Yes라면 패스    	
+    public void ComputeNextPlace(long current_place, String current_time) { // Determining what to do next through time, conditional on the current time or the time when the next location is reached
+        // Find the closest place to your current location through the database and get the time to get there.
 		int asd = 1;
-    	long NextPlace; // 다음으로 이동할 장소의 ID를 받아옴
-    	int TimetoNextPlace; // 이러면 30분이 걸린다고 가정 (실제 코드에서는 함수를 통해 시간을 받아옴)
-    	int PlayTime; // 데이터베이스에서 다음 장소에서 노는 시간을 받아옴 (실제 코드에서는 함수를 통해 시간을 받아옴, NextPlace를 인자로 넘김, sql사용)
+    	long NextPlace;
+    	int TimetoNextPlace;
+    	int PlayTime;
 		
-		if(count == 0) { // 처음 도착지점에서 출발할 때
+		if(count == 0) { // When the current location is the destination
+			// Get the fastest reachable place from the database
 			List<Taken> takenEntity = takenRepository.findFirsttourlocation(current_place);
 			Taken taken = takenEntity.get(0);
 			NextPlace = taken.getLunch2().getId();
 			TimetoNextPlace = taken.getTime();
 			PlayTime = taken.getLunch1().getTime();
 		}
-		else { // 나머지 전부. 현재 지점에서 제일 가까운 관광지
+		else {
+			// Get the fastest reachable place from the database
 			List<Taken> takenEntity = takenRepository.findtourlocation(current_place);
 			Taken taken;
-			try {
+			try { // try-catch statement for exception handling
 				taken = takenEntity.get(0);
-			} catch (Exception e) { // 점심 저녁은 남았는데 관광지가 없는 상황.
-				while(true) {
-					if(day_meal[days] < 1) { // 점심 먹어야함.
-						Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+			} catch (Exception e) { // Lunch and dinner are left, but there are no tourist attractions.
+				// Guide to the nearest location for lunch and dinner
+				while(true) { // until there is no lunch or dinner
+					if(day_meal[days] < 1) { // when I didn't eat lunch
+						// Get the fastest reachable place from the database
+						Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 						PlayTime = lunch.getTime();
-						if(ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) < 720) { // 12시 이전
+						 // Find out what to do at the current time
+						if(ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) < 720) { // for lunch
 							List<Taken> takenEntity1 = takenRepository.findFirstLunchlocation(current_place);
 							Taken taken1;
-							try {
+							try { // try-catch statement for exception handling
 								taken1 = takenEntity1.get(0);
-							} catch (Exception e1) { // 점심 먹어야하는데 갈 곳이 없는 상황
+							} catch (Exception e1) {
 								break;
 							}
 							NextPlace = taken1.getLunch2().getId();
@@ -246,18 +249,18 @@ public class travel{
 							log.info("for lunch = " + current_time);
 							log.info(ExpectTime);
 							day_meal[days]++;
-							//데이터베이스에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
+							// Change the visit status to Yes among the information of NextPlace in the database
 							takenRepository.updateLunchlocation(current_place);
 	
 							place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
 							current_place = NextPlace;
 							current_time = "12:00";
-						} else if(ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= 720 && ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) <= 840) { // 12시 - 14시
+						} else if(ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= 720 && ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) <= 840) { // for lunch
 							List<Taken> takenEntity1 = takenRepository.findFirstLunchlocation(current_place);
 							Taken taken1;
-							try {
+							try { // try-catch statement for exception handling
 								taken1 = takenEntity1.get(0);
-							} catch (Exception e1) { // 점심 먹어야하는데 갈 곳이 없는 상황.
+							} catch (Exception e1) {
 								break;
 							}
 							NextPlace = taken1.getLunch2().getId();
@@ -268,18 +271,18 @@ public class travel{
 							log.info("for lunch = " + current_time);
 							log.info(ExpectTime);
 							day_meal[days]++;
-							//데이터베이스에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
+							// Change the visit status to Yes among the information of NextPlace in the database
 							takenRepository.updateLunchlocation(current_place);
 	
 							place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
 							current_place = NextPlace;
 							current_time = ComputeTime(current_time, TimetoNextPlace, PlayTime);
-						} else { // 14시 이후
+						} else { // for lunch
 							List<Taken> takenEntity1 = takenRepository.findFirstLunchlocation(current_place);
 							Taken taken1;
-							try {
+							try { // try-catch statement for exception handling
 								taken1 = takenEntity1.get(0);
-							} catch (Exception e1) { // 점심 먹어야하는데 갈 곳이 없는 상황.
+							} catch (Exception e1) {
 								break;
 							}
 							NextPlace = taken1.getLunch2().getId();
@@ -290,23 +293,24 @@ public class travel{
 							log.info("for lunch = " + current_time);
 							log.info(ExpectTime);
 							day_meal[days]++;
-							//데이터베이스에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
+							// Change the visit status to Yes among the information of NextPlace in the database
 							takenRepository.updateLunchlocation(current_place);
 	
 							place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
 							current_place = NextPlace;
 							current_time = ComputeTime(current_time, TimetoNextPlace, PlayTime);
 						}
-					} else if(day_meal[days] < 2) { // 저녁 먹어야함.
-						Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+					} else if(day_meal[days] < 2) { // when you haven't eaten dinner
+						Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 						PlayTime = lunch.getTime();
-						if(ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) < 1080) { // 18시 이전
-							// 데이터테이블에서 정보를 뽑아옴(Dinner만)
+						// Find out what to do at the current time
+						if(ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) < 1080) {
+							// The closest dinner place to your current location
 							List<Taken> takenEntity1 = takenRepository.findFirstDinnerlocation(current_place);
 							Taken taken1;
-							try {
+							try { // try-catch statement for exception handling
 								taken1 = takenEntity1.get(0);
-							} catch (Exception e1) { // 저녁 먹어야하는데 갈 곳이 없는 상황.
+							} catch (Exception e1) {
 								break;
 							}
 							NextPlace = taken1.getLunch2().getId();
@@ -317,7 +321,7 @@ public class travel{
 							log.info("for dinner = " + current_time);
 							log.info(ExpectTime);
 							day_meal[days]++;
-							// DB에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
+							// Change the visit status to Yes among the information of NextPlace in the database
 							takenRepository.updateDinnerlocation(current_place);
 	
 							place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
@@ -325,12 +329,12 @@ public class travel{
 							current_time = "18:00";
 							days++;
 						} else if(ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= 1080 && ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) <= 1200) { // 18시 - 20시
-							// 데이터테이블에서 정보를 뽑아옴(Dinner만)
+							// The closest dinner place to your current location
 							List<Taken> takenEntity1 = takenRepository.findFirstDinnerlocation(current_place);
 							Taken taken1;
-							try {
+							try { // try-catch statement for exception handling
 								taken1 = takenEntity1.get(0);
-							} catch (Exception e1) { // 저녁 먹어야하는데 갈 곳이 없는 상황.
+							} catch (Exception e1) {
 								break;
 							}
 							NextPlace = taken1.getLunch2().getId();
@@ -341,20 +345,20 @@ public class travel{
 							log.info("for dinner = " + current_time);
 							log.info(ExpectTime);
 							day_meal[days]++;
-							// DB에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
+							// Change the visit status to Yes among the information of NextPlace in the database
 							takenRepository.updateDinnerlocation(current_place);
 	
 							place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
 							current_place = NextPlace;
 							current_time = ComputeTime(current_time, TimetoNextPlace, PlayTime);
 							days++;
-						} else { // 20시 이후
-							// 데이터테이블에서 정보를 뽑아옴(Dinner만)
+						} else {
+							// The closest dinner place to your current location
 							List<Taken> takenEntity1 = takenRepository.findFirstDinnerlocation(current_place);
 							Taken taken1;
-							try {
+							try { // try-catch statement for exception handling
 								taken1 = takenEntity1.get(0);
-							} catch (Exception e1) { // 저녁 먹어야하는데 갈 곳이 없는 상황.
+							} catch (Exception e1) {
 								break;
 							}
 							NextPlace = taken1.getLunch2().getId();
@@ -365,7 +369,7 @@ public class travel{
 							log.info("for dinner = " + current_time);
 							log.info(ExpectTime);
 							day_meal[days]++;
-							// DB에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
+							// Change the visit status to Yes among the information of NextPlace in the database
 							takenRepository.updateDinnerlocation(current_place);
 	
 							place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
@@ -373,19 +377,21 @@ public class travel{
 							current_time = ComputeTime(current_time, TimetoNextPlace, PlayTime);
 							days++;
 						}
-					} else { // 먹을 거 없음.
+					} else { // When there is no place for lunch or dinner
 						break;
 					}
 				}
-				Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+				// Save current location for last data
+				Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 				PlayTime = lunch.getTime();
 				if(ChangetoMiniute(current_time)>=returntime || ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= returntime+30) {
 					PrintPlaceList(place_list, 2);
 					return;
 				}
 				log.info("days = " + days);
+				// Save to last place travel route
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), 0, days-1);
-    			PrintPlaceList(place_list, 0); // no tour
+    			PrintPlaceList(place_list, 0);
     			return;
 			}
 			NextPlace = taken.getLunch2().getId();
@@ -393,54 +399,56 @@ public class travel{
 			PlayTime = taken.getLunch1().getTime();
 		}
 		
-    	String ExpectTime = ComputeTime(current_time, TimetoNextPlace, PlayTime); // 현재 시간이랑 걸리는 시간, 노는 시간을 함수로 넘겨서 다음 장소에서의 끝나는 시간을 구함
+    	String ExpectTime = ComputeTime(current_time, TimetoNextPlace, PlayTime); // The current time, the time taken, and the play time are passed to the function to find the end time at the next place.
 		log.info(current_time);
 		log.info(ExpectTime);
     	
-		if(days == traveldays) { // 마지막 날일경우
+		if(days == traveldays) { // On the last day
 			List<Taken> takenEntity = takenRepository.findNotvisit(current_place);
-			try {
+			try { // try-catch statement for exception handling
 				Taken taken = takenEntity.get(0);
 				log.info(taken.toString());
-			} catch (Exception e) { // 마지막 날인데 전부 visit이 0이 아님 전부 다 갔음.
-				Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+			} catch (Exception e) {
+				Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 				PlayTime = lunch.getTime();
 				if(ChangetoMiniute(current_time)>=returntime || ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= returntime+30) {
 					PrintPlaceList(place_list, 2);
 					return;
 				}
+				// Save to last place travel route
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), 0, days-1);
     			PrintPlaceList(place_list, 1); // no tour in last day
     			return;
 			}
 			
-    		if(checkTime(current_time, ExpectTime) == 3) { // 출력문 // 마지막 날 아직 갈 곳이 남았는데 시간이 늦은 상황.
-				Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+    		if(checkTime(current_time, ExpectTime) == 3) { // On the last day, there were still places to go, but it was late.
+				Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 				PlayTime = lunch.getTime();
 				if(ChangetoMiniute(current_time)>=returntime || ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= returntime+30) {
 					PrintPlaceList(place_list, 2);
 					return;
 				}
+				// Save to last place travel route
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), 0, days-1);
     			PrintPlaceList(place_list, 2); // no time 
     			return;
     		}
     	}
 		
-		if(jud_day != days) { // 다음날 이동할 첫 장소 알고리즘만 추가==========================================================================================================================
-			if((checkTime(current_time, ExpectTime) == 1)){ // 현재 시간 또는 다음 장소에 도착할 시간이 점심 또는 저녁시간이라면(1이면 점심, 2면 저녁, 0이면 패스)
-				// 데이터테이블에서 정보를 뽑아옴(Lunch만)
+		if(jud_day != days) {
+			if((checkTime(current_time, ExpectTime) == 1)){ // If the current time or the time to arrive at the next location is lunch or dinner (1 for lunch, 2 for dinner, 0 for pass)
 				List<Taken> takenEntity = takenRepository.findFirstLunchlocation(current_place);
 				Taken taken;
-				try {
+				try { // try-catch statement for exception handling
 					taken = takenEntity.get(0);
-				} catch (Exception e) { // 점심 먹어야하는데 갈 곳이 없는 상황.
-					Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+				} catch (Exception e) { // I need to eat lunch, but I have nowhere to go.
+					Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 					PlayTime = lunch.getTime();
 					if(ChangetoMiniute(current_time)>=returntime || ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= returntime+30) {
 						PrintPlaceList(place_list, 3);
 						return;
 					}
+					// Save to last place travel route
 					place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), 0, days-1);
 					PrintPlaceList(place_list, 3); // no lunch
 					return ;
@@ -457,19 +465,20 @@ public class travel{
 			return;
 		}
     	
-		if((checkTime(current_time, ExpectTime) == 1)){ // 현재 시간 또는 다음 장소에 도착할 시간이 점심 또는 저녁시간이라면(1이면 점심, 2면 저녁, 0이면 패스)
+		if((checkTime(current_time, ExpectTime) == 1)){ // If the current time or the time to arrive at the next location is lunch or dinner (1 for lunch, 2 for dinner, 0 for pass)
         	// 데이터테이블에서 정보를 뽑아옴(Lunch만)
 			List<Taken> takenEntity = takenRepository.findFirstLunchlocation(current_place);
 			Taken taken;
-			try {
+			try { // try-catch statement for exception handling
 				taken = takenEntity.get(0);
-			} catch (Exception e) { // 점심 먹어야하는데 갈 곳이 없는 상황.
-				Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+			} catch (Exception e) { // I need to eat lunch, but I have nowhere to go.
+				Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 				PlayTime = lunch.getTime();
 				if(ChangetoMiniute(current_time)>=returntime || ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= returntime+30) {
 					PrintPlaceList(place_list, 3);
 					return;
 				}
+				// Save to last place travel route
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), 0, days-1);
     			PrintPlaceList(place_list, 3); // no lunch
     			return ;
@@ -482,22 +491,22 @@ public class travel{
 			log.info("for lunch = " + current_time);
 			log.info(ExpectTime);
 			day_meal[days]++;
-    		//데이터베이스에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
+			// Change the visit status to Yes among the NextPlace information in the DB
 			takenRepository.updateLunchlocation(current_place);
         }
     	else if((checkTime(current_time, ExpectTime) == 2)) {
-    		// 데이터테이블에서 정보를 뽑아옴(Dinner만)
 			List<Taken> takenEntity = takenRepository.findFirstDinnerlocation(current_place);
 			Taken taken;
-			try {
+			try { // try-catch statement for exception handling
 				taken = takenEntity.get(0);
-			} catch (Exception e) { // 저녁 먹어야하는데 갈 곳이 없는 상황.
-				Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+			} catch (Exception e) { // I have to eat dinner, but I have nowhere to go.
+				Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 				PlayTime = lunch.getTime();
 				if(ChangetoMiniute(current_time)>=returntime || ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= returntime+30) {
 					PrintPlaceList(place_list, 4);
 					return;
 				}
+				// Save to last place travel route
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), 0, days-1);
     			PrintPlaceList(place_list, 4); // no dinner
     			return;
@@ -510,41 +519,41 @@ public class travel{
 			log.info("for dinner = " + current_time);
 			log.info(ExpectTime);
 			day_meal[days]++;
-    		// DB에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
+    		// Change the visit status to Yes among the NextPlace information in the DB
 			takenRepository.updateDinnerlocation(current_place);
 			if(ChangetoMiniute(ComputeTime(current_time, TimetoNextPlace, PlayTime))>returntime) {
 				days++;
 				TimetoNextPlace = 0;
-				current_time = scheduler.getDeparture_time(); // 시작시간으로 초기화
+				current_time = scheduler.getDeparture_time(); // Reset to departure time
 				asd = 0;
 			}
         }
-        else if (checkTime(current_time, ExpectTime) == 3) { // 숙소로 돌아갈 시간이 되었다면
-			Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+        else if (checkTime(current_time, ExpectTime) == 3) { // If it's time to go home
+			Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 			if(lunch.getIndex()==2) {
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
 				takenRepository.updateTourlocation(current_place);
 			}
-            days++;	// 여행 날짜를 하나 증가시킴
+            days++;	// Increase travel date by one
             TimetoNextPlace = 0;
-            current_time = scheduler.getDeparture_time(); // 시작시간으로 초기화
+            current_time = scheduler.getDeparture_time(); // Reset to departure time
 			asd = 0;
-			log.info("1 day left ------------------------------------------");
         }
 		else if (checkTime(current_time, ExpectTime) == 4) {
 			List<Taken> takenEntity = takenRepository.findFirstLunchlocation(current_place);
 			Taken taken;
-			try {
+			try { // try-catch statement for exception handling
 				taken = takenEntity.get(0);
-			} catch (Exception e) { // 점심 먹어야하는데 갈 곳이 없는 상황.
-				Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+			} catch (Exception e) { // I need to eat lunch, but I have nowhere to go.
+				Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 				PlayTime = lunch.getTime();
 				if(ChangetoMiniute(current_time)>=returntime || ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= returntime+30) {
 					PrintPlaceList(place_list, 3);
 					return;
 				}
+				// Save to last place travel route
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), 0, days-1);
-    			PrintPlaceList(place_list, 3); // no lunch
+    			PrintPlaceList(place_list, 3);
     			return ;
 			}
 			day_meal[days]++;
@@ -556,20 +565,20 @@ public class travel{
 			return;
 		}
 		else if (checkTime(current_time, ExpectTime) == 5) {
-    		// 데이터테이블에서 정보를 뽑아옴(Dinner만)
 			List<Taken> takenEntity = takenRepository.findFirstDinnerlocation(current_place);
 			Taken taken;
-			try {
+			try { // try-catch statement for exception handling
 				taken = takenEntity.get(0);
-			} catch (Exception e) { // 저녁 먹어야하는데 갈 곳이 없는 상황.
-				Lunch lunch = lunchRepository.findById(current_place).orElse(null); // nextid 가진 row값 챙겨오면
+			} catch (Exception e) { // I have to eat dinner, but I have nowhere to go.
+				Lunch lunch = lunchRepository.findById(current_place).orElse(null);
 				PlayTime = lunch.getTime();
 				if(ChangetoMiniute(current_time)>=returntime || ChangetoMiniute(ComputeTime(current_time, 0, PlayTime)) >= returntime+30) {
 					PrintPlaceList(place_list, 4);
 					return;
 				}
+				// Save to last place travel route
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), 0, days-1);
-    			PrintPlaceList(place_list, 4); // no dinner
+    			PrintPlaceList(place_list, 4);
     			return;
 			}
 			day_meal[days]++;
@@ -581,33 +590,33 @@ public class travel{
 			return;
 		}
         else {
-        	// DB에서 NextPlace의 정보 중에서 방문여부를 Yes로 바꿈
+        	// Change the visit status to Yes among the NextPlace information in the DB
 			takenRepository.updateTourlocation(current_place);
 			if(ChangetoMiniute(ComputeTime(current_time, TimetoNextPlace, PlayTime))>returntime) {
 				place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
 				days++;
 				TimetoNextPlace = 0;
-				current_time = scheduler.getDeparture_time(); // 시작시간으로 초기화
+				current_time = scheduler.getDeparture_time(); // Reset to departure time
 				asd = 0;
 			}
         }
 
-		log.info("days = " + days);
+		// Save travel route
     	place_list[count++] = new PlaceList(current_place, current_time, ComputeTime(current_time, 0, PlayTime), TimetoNextPlace, days);
 		
-		if(TimetoNextPlace != 0) { // 날짜 바뀔 때 현재 장소가 다음 장소로 바뀌면, 이제 다음 날 현재 장소 기준으로 서치 할 텐데 다음 날 넥스트 플레이스보다 현재 플레이스가 맞을 거 같아서
+		if(TimetoNextPlace != 0) { //When the date doesn't change
 			current_place = NextPlace;
 		}
-
-		log.info("---------------------------------------------------------------------one place---------------------------------------");
     	
-    	if (asd == 0)
+    	if (asd == 0) // When the date changes
     		ComputeNextPlace(current_place, ComputeTime(current_time, 0, 0));
     	else
     		ComputeNextPlace(current_place, ComputeTime(current_time, TimetoNextPlace, PlayTime));
-    	return;
+
+    	return; // terminate
     }
 
+	// get data from database Basic Information
 	public void atra(long current_place, String current_time, int traveldaysa, travel tv, Scheduler scheduler1, Model model1) {
 		model = model1;
 		scheduler = scheduler1;

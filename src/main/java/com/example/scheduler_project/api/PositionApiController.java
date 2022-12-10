@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.scheduler_project.annotation.RunningTime;
-import com.example.scheduler_project.dto.ArrivalDto;
 import com.example.scheduler_project.dto.LunchDto;
 import com.example.scheduler_project.dto.TakenDto;
-import com.example.scheduler_project.service.ArrivalService;
 import com.example.scheduler_project.service.LunchService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,15 +23,6 @@ public class PositionApiController {
 
 	@Autowired
 	private LunchService lunchService;
-	@Autowired
-	private ArrivalService arrivalService;
-
-	@PostMapping("/position/create/arrival")
-	public ResponseEntity<ArrivalDto> create_arrival(@RequestBody ArrivalDto dto) {
-		ArrivalDto createdDto = arrivalService.create(dto);
-
-		return ResponseEntity.status(HttpStatus.OK).body(createdDto);
-	}
 
 	@PostMapping("/position/create/lunch")
 	public ResponseEntity<LunchDto> create(@RequestBody LunchDto dto) {
@@ -48,17 +37,6 @@ public class PositionApiController {
 		TakenDto createdDto = lunchService.createtaken(dto);
 
 		return ResponseEntity.status(HttpStatus.OK).body(createdDto);
-	}
-
-	// 댓글 삭제
-	@RunningTime
-	@DeleteMapping("/api/arrival/{id}")
-	public ResponseEntity<ArrivalDto> arrivaldelete(@PathVariable Long id) {
-		// 서비스에게 위임
-		ArrivalDto updatedDto = arrivalService.delete(id);
-
-		// 결과 응답
-		return ResponseEntity.status(HttpStatus.OK).body(updatedDto);
 	}
 	
 	// 댓글 수정
